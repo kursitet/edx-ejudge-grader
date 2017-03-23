@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="919f21e6-3916-4db4-8d71-e9e94a2ecb02" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test _ref_pull_grader.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/settings.py" afterPath="$PROJECT_DIR$/settings.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test_ref_pull_grader.py" afterPath="$PROJECT_DIR$/test_ref_pull_grader.py" />
     </list>
     <ignored path="xqueue_pull_ref.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,11 +38,10 @@
       <file leaf-file-name="test_ref_pull_grader.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test_ref_pull_grader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="577">
-              <caret line="159" column="25" selection-start-line="159" selection-start-column="25" selection-end-line="159" selection-end-column="25" />
+            <state relative-caret-position="414">
+              <caret line="125" column="32" selection-start-line="125" selection-start-column="32" selection-end-line="125" selection-end-column="32" />
               <folding>
-                <element signature="e#0#11#0" expanded="true" />
-                <marker date="1490108708043" expanded="true" signature="4278:4590" ph="..." />
+                <element signature="e#13#24#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -89,7 +87,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1659" />
+    <option name="x" value="59" />
     <option name="y" value="-4" />
     <option name="width" value="1541" />
     <option name="height" value="904" />
@@ -144,7 +142,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$USER_HOME$/PyCharm" />
+    <property name="last_opened_file_path" value="$USER_HOME$/PyCharm/kursitet-platform" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js-jscs-nodeInterpreter" value="/usr/bin/node" />
   </component>
@@ -385,7 +383,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1659" y="-4" width="1541" height="904" extended-state="6" />
+    <frame x="59" y="-4" width="1541" height="904" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2543803" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -520,11 +518,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test_ref_pull_grader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="577">
-          <caret line="159" column="25" selection-start-line="159" selection-start-column="25" selection-end-line="159" selection-end-column="25" />
+        <state relative-caret-position="414">
+          <caret line="125" column="32" selection-start-line="125" selection-start-column="32" selection-end-line="125" selection-end-column="32" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1490108708043" expanded="true" signature="4278:4590" ph="..." />
+            <element signature="e#13#24#0" expanded="true" />
           </folding>
         </state>
       </provider>
