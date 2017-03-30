@@ -1,6 +1,4 @@
-xqueue_pull_ref
+EDX-ejudge-grader
 ===============
 
-reference for pull client to edX's xqueue
-
-Much credit to the edx/edx-ora repo, from where much of this code is lifted
+Серверное приложение для проверки решений студентов из системы EDX в ejudge.
