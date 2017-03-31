@@ -9,6 +9,7 @@ import urlparse
 import project_urls
 import subprocess
 import xml.etree.ElementTree as etree
+import json
 
 log = logging.getLogger(__name__)
 
@@ -140,6 +141,23 @@ def grade_in_ejudge(response, contest_id=2, problem_name='A', lang='gcc'):
 
 def create_task(grader_payload):
     pass
+
+def exist_contest(name_contest):
+    file = open('./contest_name_to_id.json','r')
+    contest_table = json.load(file)
+    file.close()
+    if name_contest in contest_table:
+        return -1
+    else:
+        contest_table[name_contest] = str(len(contest_table) + 1)
+        outfile = open('./contest_name_to_id.json','w')
+        json.dump(contest_table, outfile)
+        outfile.close()
+        return contest_table[name_contest]
+
+def create_contest_xml(name_contest, contest_id):
+    name_xml = (6 - len(contest_id)) * '0' + str(contest_id) + '.xml'
+    root = etree.Element("contest")
 
 
 def del_str_in_xml(name_file):
