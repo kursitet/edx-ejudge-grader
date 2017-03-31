@@ -1,4 +1,4 @@
-#coding=utf8
+# coding=utf8
 import time
 import logging
 import json
@@ -10,6 +10,7 @@ import project_urls
 import subprocess
 import xml.etree.ElementTree as etree
 import json
+import os
 
 log = logging.getLogger(__name__)
 
@@ -142,22 +143,108 @@ def grade_in_ejudge(response, contest_id=2, problem_name='A', lang='gcc'):
 def create_task(grader_payload):
     pass
 
-def exist_contest(name_contest):
-    file = open('./contest_name_to_id.json','r')
+
+def get_contest_id(name_contest):
+    file = open('./contest_name_to_id.json', 'r')
     contest_table = json.load(file)
     file.close()
     if name_contest in contest_table:
-        return -1
+        return contest_table[name_contest], True
     else:
         contest_table[name_contest] = str(len(contest_table) + 1)
-        outfile = open('./contest_name_to_id.json','w')
+        outfile = open('./contest_name_to_id.json', 'w')
         json.dump(contest_table, outfile)
         outfile.close()
-        return contest_table[name_contest]
+        return contest_table[name_contest], False
+
 
 def create_contest_xml(name_contest, contest_id):
     name_xml = (6 - len(contest_id)) * '0' + str(contest_id) + '.xml'
-    root = etree.Element("contest")
+    root = etree.Element('contest', attrib={'id': contest_id,
+                                            'disable_team_password': 'yes',
+                                            'personal': 'yes', 'managed': 'yes',
+                                            'run_managed': 'yes'})
+    name = etree.SubElement(root, 'name')
+    name.text = name_contest
+    name_en = etree.SubElement(root, 'name_en')
+    name_en.text = name_contest
+    default_locale = etree.SubElement(root, 'default_locale')
+    default_locale.text = 'Russian'
+    register_url = etree.SubElement(root, 'register_url')
+    register_url.text = 'http://ejudge.dev.mccme.ru/cgi-bin/new-register'
+    team_url = etree.SubElement(root, 'team_url')
+    team_url.text = 'http://ejudge.dev.mccme.ru/cgi-bin/new-client'
+    register_access = etree.SubElement(root, 'register_access')
+    register_access.set('default', 'allow')
+    users_access = etree.SubElement(root, 'users_access')
+    users_access.set('default', 'allow')
+    master_access = etree.SubElement(root, 'master_access')
+    master_access.set('default', 'allow')
+    ip1 = etree.SubElement(master_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip1.text = '1.0.0.127'
+    ip2 = etree.SubElement(master_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip2.text = '172.18.1.24'
+    judge_access = etree.SubElement(root, 'judge_access',
+                                    attrib={'default': 'allow'})
+    ip1 = etree.SubElement(judge_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip1.text = '1.0.0.127'
+    ip2 = etree.SubElement(judge_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip2.text = '172.18.1.24'
+    team_access = etree.SubElement(root, 'team_access',
+                                   attrib={'default': 'allow'})
+    ip1 = etree.SubElement(team_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip1.text = '1.0.0.127'
+    ip2 = etree.SubElement(team_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip2.text = '172.18.1.24'
+    serve_control_access = etree.SubElement(root, 'serve_control_access',
+                                            attrib={'default': 'allow'})
+    ip1 = etree.SubElement(serve_control_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip1.text = '1.0.0.127'
+    ip2 = etree.SubElement(serve_control_access, 'ip',
+                           attrib={'allow': 'yes', 'ssl': 'no'})
+    ip2.text = '172.18.1.24'
+    caps = etree.SubElement(root, 'caps')
+    cap = etree.SubElement(caps, 'cap', attrib={'login': 'nimere'})
+    cap.text = 'FULL_SET,'
+    etree.SubElement(root, 'contestants',
+                     attrib={'min': '1', 'max': '1', 'initial': '1'})
+    tree = etree.ElementTree(root)
+    tree.write('/home/judges/data/contests/' + name_xml)
+
+
+def create_dir_structure(contest_id):
+    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
+    path_contest = '/home/judges/' + name_dir_contest
+    os.makedirs(path_contest)
+    os.makedirs(path_contest + 'conf/')
+    os.makedirs(path_contest + 'problems/')
+    os.makedirs(path_contest + 'var/')
+
+
+def create_serve_cfg(contest_name, contest_id, path_contest):
+    serve = open(path_contest + 'conf/serve.cfg', 'w')
+    global_param = list('# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
+                 'score_system = acm',
+                 'compile_dir = "../../compile/var/compile"',
+                 'team_enable_rep_view',
+                 'ignore_compile_errors',
+                 'problem_navigation',
+                 'rounding_mode = floor',
+                 'cr_serialization_key = 22723',
+                 'enable_runlog_merge',
+                 'advanced_layout',
+                 'enable_l10n',
+                 'team_download_time = 0',
+                 'cpu_bogomips = 4533',)
+    lang_param = list('[language]')
+
 
 
 def del_str_in_xml(name_file):
