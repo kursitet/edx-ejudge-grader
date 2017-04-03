@@ -11,6 +11,7 @@ import subprocess
 import xml.etree.ElementTree as etree
 import json
 import os
+import csv
 
 log = logging.getLogger(__name__)
 
@@ -246,6 +247,16 @@ def create_serve_cfg(contest_name, contest_id, path_contest):
     lang_param = list('[language]')
 
 
+def add_lang_in_serve_cfg(lang_short_name):
+    lang_id = get_lang_id(lang_short_name)
+    param = list('[language]', )
+
+def get_lang_id(lang_short_name):
+    file = open('./lang_short_to_id.csv', 'r')
+    lang_list = csv.DictReader(file, delimiter=';', skipinitialspace=True)
+    for lang in lang_list:
+        if lang['name'] == lang_short_name:
+            return lang['id']
 
 def del_str_in_xml(name_file):
     file = open('./report/' + name_file, 'r')
