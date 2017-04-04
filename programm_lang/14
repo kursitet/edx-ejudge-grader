@@ -1,0 +1,5 @@
+id = 14
+short_name = "perl"
+long_name = "Perl 5.22.1"
+arch = "linux-shared"
+src_sfx = ".pl"

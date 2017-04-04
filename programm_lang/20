@@ -1,0 +1,7 @@
+id = 20
+short_name = "vbnc"
+long_name = "Mono Visual Basic .NET 0.0.0.5943"
+arch = "msil"
+src_sfx = ".vb"
+exe_sfx = ".exe"
+insecure

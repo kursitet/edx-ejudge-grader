@@ -1,0 +1,6 @@
+id = 18
+short_name = "javac"
+long_name = "Java JDK 1.8.0_121"
+arch = "java"
+src_sfx = ".java"
+exe_sfx = ".jar"

@@ -1,0 +1,5 @@
+id = 29
+short_name = "g++-vg"
+long_name = "GNU C++ (valgrind) 5.4.0"
+arch = "valgrind"
+src_sfx = ".cpp"

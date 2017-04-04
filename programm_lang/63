@@ -1,0 +1,5 @@
+id = 63
+short_name = "pypy"
+long_name = "Python (PyPy) 2.7.10"
+arch = "linux-shared"
+src_sfx = ".py"

@@ -1,0 +1,5 @@
+id = 12
+short_name = "mzscheme"
+long_name = "MzScheme 6.3"
+arch = "linux-shared"
+src_sfx = ".scm"

@@ -1,0 +1,5 @@
+id = 67
+short_name = "gas"
+long_name = "GNU AS 5.4.0"
+arch = "linux-shared"
+src_sfx = ".S"

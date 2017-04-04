@@ -1,0 +1,4 @@
+id = 6
+short_name = "gfortran"
+long_name = "GNU Fortran 5.4.0-6ubuntu1~16.04.4)"
+src_sfx = ".for"

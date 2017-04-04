@@ -1,0 +1,5 @@
+id = 15
+short_name = "gprolog"
+long_name = "GNU Prolog 1.3.0"
+arch = "linux-shared"
+src_sfx = ".pro"

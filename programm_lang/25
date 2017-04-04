@@ -1,0 +1,5 @@
+id = 25
+short_name = "make"
+long_name = "Make 4.1"
+arch = "linux-shared"
+src_sfx = ".tar"

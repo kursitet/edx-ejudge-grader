@@ -1,0 +1,5 @@
+id = 21
+short_name = "ruby"
+long_name = "Ruby 2.3.1p112"
+arch = "linux-shared"
+src_sfx = ".rb"

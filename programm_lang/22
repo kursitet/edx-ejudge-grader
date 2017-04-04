@@ -1,0 +1,5 @@
+id = 22
+short_name = "php"
+long_name = "PHP 7.0.13-0ubuntu0.16.04.1"
+arch = "linux-shared"
+src_sfx = ".php"
