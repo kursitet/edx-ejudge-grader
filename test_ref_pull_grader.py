@@ -227,9 +227,10 @@ def create_dir_structure(contest_id):
     os.makedirs(path_contest + 'conf/')
     os.makedirs(path_contest + 'problems/')
     os.makedirs(path_contest + 'var/')
+    return path_contest
 
 
-def create_serve_cfg(contest_name, contest_id, path_contest):
+def create_serve_cfg(contest_name, contest_id, path_contest,lang_name):
     serve = open(path_contest + 'conf/serve.cfg', 'w')
     global_param = list('# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
                  'score_system = acm',
@@ -244,12 +245,18 @@ def create_serve_cfg(contest_name, contest_id, path_contest):
                  'enable_l10n',
                  'team_download_time = 0',
                  'cpu_bogomips = 4533',)
-    lang_param = list('[language]')
+    lang_param = get_lang_param(lang_name)
 
 
-def add_lang_in_serve_cfg(lang_short_name):
+
+
+def get_lang_param(lang_short_name):
     lang_id = get_lang_id(lang_short_name)
-    param = list('[language]', )
+    param = list()
+    param.append('[language]')
+    file = open('./programm_lang/' + lang_id, 'r')
+    param.extend(list(file))
+    return param
 
 def get_lang_id(lang_short_name):
     file = open('./lang_short_to_id.csv', 'r')
@@ -257,6 +264,12 @@ def get_lang_id(lang_short_name):
     for lang in lang_list:
         if lang['name'] == lang_short_name:
             return lang['id']
+
+def get_problem_param(problem_name):
+    pass
+
+def get_problem_id():
+    pass
 
 def del_str_in_xml(name_file):
     file = open('./report/' + name_file, 'r')
