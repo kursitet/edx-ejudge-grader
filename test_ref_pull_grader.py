@@ -1,17 +1,18 @@
 # coding=utf8
-import time
-import logging
-import json
-import urllib2
-import xqueue_util as util
-import settings
-import urlparse
-import project_urls
-import subprocess
-import xml.etree.ElementTree as etree
-import json
-import os
 import csv
+import json
+import json
+import logging
+import os
+import subprocess
+import time
+import urllib2
+import urlparse
+import xml.etree.ElementTree as etree
+
+import project_urls
+import settings
+import xqueue_util as util
 
 log = logging.getLogger(__name__)
 
@@ -155,9 +156,11 @@ def create_task(grader_payload):
         contest_path = create_dir_structure(contest_id)
         create_serve_cfg(contest_path, lang_name, problem_name, problem_type)
         create_problem_dir(problem_name, contest_path)
-        create_test_answer_data(problem_name, contest_path, test_data, answer_data)
-    else:
-        pass
+        create_test_answer_data(problem_name, contest_path, test_data,
+                                answer_data)
+    elif not problem_exist(contest_id, problem_name):
+        create_problem_dir(problem_name,)
+
 
 
 def get_contest_id(name_contest):
@@ -249,18 +252,18 @@ def create_dir_structure(contest_id):
 def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
     serve = open(contest_path + 'conf/serve.cfg', 'w')
     global_param = ['# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
-                 'score_system = acm',
-                 'compile_dir = "../../compile/var/compile"',
-                 'team_enable_rep_view',
-                 'ignore_compile_errors',
-                 'problem_navigation',
-                 'rounding_mode = floor',
-                 'cr_serialization_key = 22723',
-                 'enable_runlog_merge',
-                 'advanced_layout',
-                 'enable_l10n',
-                 'team_download_time = 0',
-                 'cpu_bogomips = 4533']
+                    'score_system = acm',
+                    'compile_dir = "../../compile/var/compile"',
+                    'team_enable_rep_view',
+                    'ignore_compile_errors',
+                    'problem_navigation',
+                    'rounding_mode = floor',
+                    'cr_serialization_key = 22723',
+                    'enable_runlog_merge',
+                    'advanced_layout',
+                    'enable_l10n',
+                    'team_download_time = 0',
+                    'cpu_bogomips = 4533']
     lang_param = get_lang_param(lang_name)
     problem_param = get_problem_param(problem_name, problem_type)
     tester_param = get_tester_param()
@@ -292,7 +295,7 @@ def get_lang_id(lang_short_name):
 def get_problem_param(problem_name, problem_type):
     param = [
         '[problem]',
-        'short_name = ' + '"'+problem_name+'"',
+        'short_name = ' + '"' + problem_name + '"',
         'long_name = ""',
         'type = ' + problem_type,
         'scoring_checker = 0',
@@ -363,6 +366,31 @@ def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
             file_ans.close()
             num_test += 1
 
+
+def problem_exist(contest_id, problem_name):
+    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
+    contest_path = '/home/judges/' + name_dir_contest + 'problems/'
+    problems_list = os.listdir(contest_path)
+    if problem_name in problems_list:
+        return True
+    else:
+        return False
+
+
+def get_contest_path(contest_id):
+    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
+    contest_path = '/home/judges/' + name_dir_contest
+    return contest_path
+
+
+def create_problem(problem_name, contes_id, test_data, answer_data):
+    contest_path = get_contest_path(contes_id)
+    create_problem_dir(problem_name, contest_path)
+    create_test_answer_data(problem_name, contest_path, test_data, answer_data)
+
+
+def problem_add_in_serve():
+    pass
 
 def del_str_in_xml(name_file):
     file = open('./report/' + name_file, 'r')
