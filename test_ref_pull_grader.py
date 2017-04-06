@@ -142,10 +142,26 @@ def grade_in_ejudge(response, contest_id=2, problem_name='A', lang='gcc'):
 
 
 def create_task(grader_payload):
-    pass
+    contest_name = grader_payload['course_name']
+    problem_name = grader_payload['problem_name']
+    problem_type = grader_payload['problem_type']
+    lang_name = grader_payload['lang_short_name']
+    test_data = grader_payload['input_data']
+    answer_data = grader_payload['output_data']
+
+    contest_id, contest_exist = get_contest_id(contest_name)
+    if not contest_exist:
+        create_contest_xml(contest_name, contest_id)
+        contest_path = create_dir_structure(contest_id)
+        create_serve_cfg(contest_path, lang_name, problem_name, problem_type)
+        create_problem_dir(problem_name, contest_path)
+        create_test_answer_data(problem_name, contest_path, test_data, answer_data)
+    else:
+        pass
 
 
 def get_contest_id(name_contest):
+    """ если второй параметр возвращает false, значит id новый"""
     file = open('./contest_name_to_id.json', 'r')
     contest_table = json.load(file)
     file.close()
@@ -222,16 +238,16 @@ def create_contest_xml(name_contest, contest_id):
 
 def create_dir_structure(contest_id):
     name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
-    path_contest = '/home/judges/' + name_dir_contest
-    os.makedirs(path_contest)
-    os.makedirs(path_contest + 'conf/')
-    os.makedirs(path_contest + 'problems/')
-    os.makedirs(path_contest + 'var/')
-    return path_contest
+    contest_path = '/home/judges/' + name_dir_contest
+    os.makedirs(contest_path)
+    os.makedirs(contest_path + 'conf/')
+    os.makedirs(contest_path + 'problems/')
+    os.makedirs(contest_path + 'var/')
+    return contest_path
 
 
-def create_serve_cfg(path_contest, lang_name, problem_name):
-    serve = open(path_contest + 'conf/serve.cfg', 'w')
+def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
+    serve = open(contest_path + 'conf/serve.cfg', 'w')
     global_param = ['# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
                  'score_system = acm',
                  'compile_dir = "../../compile/var/compile"',
@@ -246,11 +262,15 @@ def create_serve_cfg(path_contest, lang_name, problem_name):
                  'team_download_time = 0',
                  'cpu_bogomips = 4533']
     lang_param = get_lang_param(lang_name)
-    problem_param = get_problem_param(problem_name)
+    problem_param = get_problem_param(problem_name, problem_type)
     tester_param = get_tester_param()
-    all_param = global_param.extend(lang_param).extend(problem_param).extend(tester_param)
+    all_param = global_param
+    all_param.extend(lang_param)
+    all_param.extend(problem_param)
+    all_param.extend(tester_param)
     for row in all_param:
-        serve.write(row)
+        serve.write(row + '\n')
+    serve.close()
 
 
 def get_lang_param(lang_short_name):
@@ -269,11 +289,12 @@ def get_lang_id(lang_short_name):
             return lang['id']
 
 
-def get_problem_param(problem_name):
+def get_problem_param(problem_name, problem_type):
     param = [
         '[problem]',
         'short_name = ' + '"'+problem_name+'"',
         'long_name = ""',
+        'type = ' + problem_type,
         'scoring_checker = 0',
         'interactive_valuer = 0',
         'manual_checking = 0',
@@ -321,6 +342,26 @@ def get_tester_param():
              'check_dir = "TWD"',
              ]
     return param
+
+
+def create_problem_dir(problem_name, contest_path):
+    problem_path = contest_path + 'problems/' + problem_name + '/'
+    os.makedirs(problem_path)
+    os.makedirs(problem_path + 'tests')
+
+
+def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
+    test_path = contest_path + 'problems/' + problem_name + '/' + 'tests/'
+    num_test = 1
+    if len(test_data) == len(answer_data):
+        for i in range(0, len(test_data)):
+            file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
+            file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
+            file_dat.write(test_data[i])
+            file_ans.write(answer_data[i])
+            file_dat.close()
+            file_ans.close()
+            num_test += 1
 
 
 def del_str_in_xml(name_file):
