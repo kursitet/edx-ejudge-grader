@@ -159,8 +159,8 @@ def create_task(grader_payload):
         create_test_answer_data(problem_name, contest_path, test_data,
                                 answer_data)
     elif not problem_exist(contest_id, problem_name):
-        create_problem_dir(problem_name,)
-
+        create_problem(problem_name, problem_type, contest_id, test_data,
+                       answer_data)
 
 
 def get_contest_id(name_contest):
@@ -383,14 +383,20 @@ def get_contest_path(contest_id):
     return contest_path
 
 
-def create_problem(problem_name, contes_id, test_data, answer_data):
-    contest_path = get_contest_path(contes_id)
+def create_problem(problem_name, problem_type, contest_id, test_data,
+                   answer_data):
+    contest_path = get_contest_path(contest_id)
     create_problem_dir(problem_name, contest_path)
     create_test_answer_data(problem_name, contest_path, test_data, answer_data)
+    problem_add_in_serve(contest_path, problem_name, problem_type)
 
 
-def problem_add_in_serve():
-    pass
+def problem_add_in_serve(contest_path, problem_name, problem_type):
+    problem_param = get_problem_param(problem_name, problem_type)
+    serve_path = contest_path + 'conf/serve.cfg'
+    with open(serve_path, 'a') as f:
+        f.write(problem_param)
+
 
 def del_str_in_xml(name_file):
     file = open('./report/' + name_file, 'r')
