@@ -15,7 +15,7 @@ def create_task(grader_payload):
 
     contest_id = get_contest_id(contest_name)
     if not contest_id:
-        create_contest_id(contest_name)
+        contest_id = create_contest_id(contest_name)
         create_contest_xml(contest_name, contest_id)
         contest_path = create_dir_structure(contest_id)
         create_serve_cfg(contest_path, lang_name, problem_name, problem_type)
@@ -242,13 +242,15 @@ def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
 
 
 def problem_exist(contest_id, problem_name):
-    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
-    contest_path = '/home/judges/' + name_dir_contest + 'problems/'
-    problems_list = os.listdir(contest_path)
-    if problem_name in problems_list:
-        return True
-    else:
-        return False
+    if contest_id:
+        name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
+        contest_path = '/home/judges/' + name_dir_contest + 'problems/'
+        problems_list = os.listdir(contest_path)
+        if problem_name in problems_list:
+            return True
+        else:
+            return False
+    return False
 
 
 def get_contest_path(contest_id):

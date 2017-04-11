@@ -5,7 +5,7 @@ import logging
 import time
 import urllib2
 import urlparse
-
+import ast
 import project_urls
 import settings
 import xqueue_util as util
@@ -42,12 +42,12 @@ def each_cycle():
 
 
 def grade(content):
-    print(content)
     body = json.loads(content['xqueue_body'])
     student_info = json.loads(body.get('student_info', '{}'))
-    grader_playload = body.get('grader_playload')
+    grader_payload = ast.literal_eval(body['grader_payload'].strip())
     resp = body.get('student_response', '')
-    answer = ejudge.grader(resp,grader_playload)
+    print grader_payload
+    answer = ejudge.grader(resp, grader_payload)
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
         response = urllib2.urlopen(fileurl)

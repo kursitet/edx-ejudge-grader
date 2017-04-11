@@ -1,3 +1,4 @@
+# coding=utf8
 import subprocess
 import time
 import xml.etree.ElementTree as etree
@@ -6,7 +7,7 @@ import ejudge_util
 
 
 def grader(response, grader_payload):
-    contest_id = ejudge_util.get_contest_id(grader_payload['contest_name'])
+    contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     problem_exist = ejudge_util.problem_exist(contest_id,
                                               grader_payload['problem_name'])
     if not contest_id or not problem_exist:
@@ -27,7 +28,7 @@ def run_grade_in_ejudge(response, grader_payload):
     response_file = open('response.txt', 'w')
     response_file.write(response)
     response_file.close()
-    contest_id = ejudge_util.get_contest_id(grader_payload['contest_name'])
+    contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
     run_id, err = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
