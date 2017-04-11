@@ -9,7 +9,7 @@ import urlparse
 import project_urls
 import settings
 import xqueue_util as util
-import ejudge_util as ejudge
+import ejudge_grade as ejudge
 
 log = logging.getLogger(__name__)
 
@@ -25,15 +25,15 @@ def each_cycle():
         print(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
-            ans = grade(content)
+            answer = grade(content)
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(
                 content_header['submission_id'],
                 content_header['submission_key'],
-                ans['success'],
-                1,
-                '<p><emph>Good Job!</emph></p>',
+                answer['success'],
+                answer['score'],
+                answer_msg(answer),
                 'reference_dummy_grader')
             (success, msg) = util.post_results_to_xqueue(session, json.dumps(
                 xqueue_header), json.dumps(xqueue_body), )
@@ -47,7 +47,7 @@ def grade(content):
     student_info = json.loads(body.get('student_info', '{}'))
     grader_playload = body.get('grader_playload')
     resp = body.get('student_response', '')
-    answer = ejudge.grade_in_ejudge(resp)
+    answer = ejudge.grader(resp,grader_playload)
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
         response = urllib2.urlopen(fileurl)
@@ -56,6 +56,18 @@ def grade(content):
         f.close()
         response.close()
     return answer
+
+
+def answer_msg(answer):
+    exclamation = ''
+    if answer['success']:
+        exclamation = 'Good Job!'
+    else:
+        exclamation = 'Incorrect unswer!'
+    ex_tag = '<p><em>'+exclamation+'</em>'+'</p><br>'
+    compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
+    msg = ex_tag + compiler_tag
+    return msg
 
 
 def get_from_queue(queue_name, xqueue_session):

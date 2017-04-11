@@ -5,11 +5,6 @@ import os
 import xml.etree.ElementTree as etree
 
 
-
-def exist_task(grader_payload):
-    pass
-
-
 def create_task(grader_payload):
     contest_name = grader_payload['course_name']
     problem_name = grader_payload['problem_name']
@@ -27,9 +22,13 @@ def create_task(grader_payload):
         create_problem_dir(problem_name, contest_path)
         create_test_answer_data(problem_name, contest_path, test_data,
                                 answer_data)
+        print 'Contest files create!'
     elif not problem_exist(contest_id, problem_name):
         create_problem(problem_name, problem_type, contest_id, test_data,
                        answer_data)
+        print 'Problem create'
+    save_grader_payload(grader_payload, get_contest_path(contest_id),
+                        problem_name)
 
 
 def get_contest_id(contest_name):
@@ -51,7 +50,6 @@ def create_contest_id(contest_name):
     json.dump(contest_table, outfile)
     outfile.close()
     return contest_table[contest_name]
-
 
 
 def create_contest_xml(contest_name, contest_id):
@@ -274,4 +272,32 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
         f.write(problem_param)
 
 
+def save_grader_payload(grader_payload, contest_path, problem_name):
+    file_payload = contest_path + problem_name + '/' + 'grader_paload'
+    json.dump(grader_payload, file_payload)
 
+
+def check_grader_payload(new_payload, contest_path, problem_name):
+    file_payload = contest_path + problem_name + '/' + 'grader_paload'
+    payload = json.load(file_payload)
+    old_test = payload['input_data']
+    old_answer = payload['output_data']
+    new_test = new_payload['input_data']
+    new_answer = new_payload['output_data']
+    change_list = list()
+    if old_test != new_test:
+        change_list.append('input_data')
+    if old_answer != new_answer:
+        change_list.append('output_data')
+    return change_list
+
+
+def update_payload(change_list, grader_payload):
+    contest_id = get_contest_id(grader_payload['contest_name'])
+    contest_path = get_contest_path(contest_id)
+    problem_name = grader_payload['problem_name']
+    test_data = grader_payload['input_data']
+    answer_data = grader_payload['output_data']
+    create_test_answer_data(problem_name, contest_path, test_data, answer_data)
+    save_grader_payload(grader_payload, contest_path, problem_name)
+    print 'Test and answer data update'
