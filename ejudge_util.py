@@ -152,7 +152,7 @@ def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
 
 def get_lang_param(lang_short_name):
     lang_id = get_lang_id(lang_short_name)
-    param = ['[language]']
+    param = ['\n[language]']
     file = open('./programm_lang/' + lang_id, 'r')
     param.extend(list(file))
     return param
@@ -207,7 +207,7 @@ def get_problem_param(problem_name, problem_type):
 
 
 def get_tester_param():
-    param = ['[tester]',
+    param = ['\n[tester]',
              'any',
              'no_core_dump',
              'kill_signal = KILL',
@@ -275,13 +275,13 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
 
 
 def save_grader_payload(grader_payload, contest_path, problem_name):
-    file_payload = contest_path + problem_name + '/' + 'grader_paload'
-    json.dump(grader_payload, file_payload)
+    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_paload.json'
+    json.dump(open(grader_payload, 'w'), file_payload)
 
 
 def check_grader_payload(new_payload, contest_path, problem_name):
-    file_payload = contest_path + problem_name + '/' + 'grader_paload'
-    payload = json.load(file_payload)
+    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_paload.json'
+    payload = json.load(open(file_payload, 'r'))
     old_test = payload['input_data']
     old_answer = payload['output_data']
     new_test = new_payload['input_data']
@@ -291,10 +291,12 @@ def check_grader_payload(new_payload, contest_path, problem_name):
         change_list.append('input_data')
     if old_answer != new_answer:
         change_list.append('output_data')
+    print change_list
     return change_list
 
 
 def update_payload(change_list, grader_payload):
+    print 'update payload', grader_payload
     contest_id = get_contest_id(grader_payload['contest_name'])
     contest_path = get_contest_path(contest_id)
     problem_name = grader_payload['problem_name']
