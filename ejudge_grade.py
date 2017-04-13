@@ -17,7 +17,7 @@ def grader(response, grader_payload):
                                                          contest_id),
                                                      grader_payload[
                                                          'problem_name'])
-    if check_payload != 0:
+    if check_payload:
         ejudge_util.update_payload(check_payload, grader_payload)
         print 'Test and answer data update'
     result = run_grade_in_ejudge(response, grader_payload)
@@ -43,8 +43,10 @@ def run_grade_in_ejudge(response, grader_payload):
     run_id = run_id.replace('/n', ' ').strip()
     name_report_file = 'report_' + run_id + '.xml'
     contest_path = ejudge_util.get_contest_path(contest_id)
-    command_dump_report = '/opt/ejudge/bin/ejudge-contests-cmd ' + str(
-        contest_id) + ' dump-report' + ' /home/ejudge/session.pwd ' + run_id + ' >' + contest_path + 'report/' + name_report_file
+    report_path = contest_path + 'report/' + name_report_file
+    session_file = '/home/ejudge/session.pwd '
+    ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
+    command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
     # КОСТЫЛЬ.это время, за которое еджадж должен проверить работу. сделать проверку в цикле
     time.sleep(2)
     subprocess.call(command_dump_report, shell=True)

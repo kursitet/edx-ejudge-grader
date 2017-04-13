@@ -36,7 +36,7 @@ def get_contest_id(contest_name):
     contest_table = json.load(file)
     file.close()
     if contest_name in contest_table:
-        return contest_table[contest_name]
+        return str(contest_table[contest_name])
     else:
         return False
 
@@ -120,6 +120,7 @@ def create_dir_structure(contest_id):
     os.makedirs(contest_path + 'conf/')
     os.makedirs(contest_path + 'problems/')
     os.makedirs(contest_path + 'var/')
+    os.makedirs(contest_path + 'report/')
     return contest_path
 
 
@@ -275,12 +276,12 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
 
 
 def save_grader_payload(grader_payload, contest_path, problem_name):
-    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_paload.json'
-    json.dump(open(grader_payload, 'w'), file_payload)
+    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_payload.json'
+    json.dump(open(file_payload, 'w'), grader_payload)
 
 
 def check_grader_payload(new_payload, contest_path, problem_name):
-    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_paload.json'
+    file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_payload.json'
     payload = json.load(open(file_payload, 'r'))
     old_test = payload['input_data']
     old_answer = payload['output_data']
@@ -296,7 +297,6 @@ def check_grader_payload(new_payload, contest_path, problem_name):
 
 
 def update_payload(change_list, grader_payload):
-    print 'update payload', grader_payload
     contest_id = get_contest_id(grader_payload['contest_name'])
     contest_path = get_contest_path(contest_id)
     problem_name = grader_payload['problem_name']
