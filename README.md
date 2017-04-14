@@ -5,5 +5,9 @@ EDX-ejudge-grader
 
 Использование:
 ======
+Перед использованием необходимо создать сессионный файл ejudge командой:
 
-python xqueue_ref_pull.py
+/opt/ejudge/bin/ejudge-contests-cmd 2 master-login /home/ejudge/session.pwd login password
+
+Запуск:
+python edx-ejudge-grader.py

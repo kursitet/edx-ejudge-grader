@@ -67,7 +67,8 @@ def answer_msg(answer):
     ex_tag = '<p><em>'+exclamation+'</em>'+'</p><br>'
     compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
     msg = ex_tag + compiler_tag
-    return msg
+    # too large msg, edx exept error
+    return ex_tag
 
 
 def get_from_queue(queue_name, xqueue_session):

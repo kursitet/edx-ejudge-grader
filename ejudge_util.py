@@ -32,7 +32,10 @@ def create_task(grader_payload):
 
 
 def get_contest_id(contest_name):
-    file = open('./contest_name_to_id.json', 'r')
+    try:
+        file = open('./contest_name_to_id.json', 'r')
+    except IOError:
+        create_contest_name_id_json()
     contest_table = json.load(file)
     file.close()
     if contest_name in contest_table:
@@ -305,3 +308,22 @@ def update_payload(change_list, grader_payload):
     create_test_answer_data(problem_name, contest_path, test_data, answer_data)
     save_grader_payload(grader_payload, contest_path, problem_name)
     print 'Test and answer data update'
+
+
+def create_contest_name_id_json():
+    if os.path.exists('./contest_name_to_id.json'):
+        return True
+    path = '/home/judges/data/contests/'
+    list_files = os.listdir(path)
+    name_to_id = dict()
+    for item in list_files:
+        if item.endswith('.xml'):
+            xml = etree.parse(path + item)
+            root = xml.getroot()
+            contest_id = root.attrib['id']
+            name = root.find('name_en').text
+            if id == 'auto':
+                contest_id = item.replace('0', ' ').strip()
+            name_to_id[name] = str(contest_id)
+    json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
+

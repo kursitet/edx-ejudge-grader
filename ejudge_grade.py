@@ -59,15 +59,16 @@ def pars_report(name_report_file, contest_path):
     del_str_in_report_xml(contest_path, name_report_file)
     result_xml = etree.parse(contest_path + 'report/' + name_report_file)
     test_tag = result_xml.getroot().find("tests").findall("test")
-    checker_list = list()
     test_ok = 0
+    if not test_tag:
+        result['success'] = False
+        result['score'] = 0
+        return result
     for i in test_tag:
-        checker_list.append(i.find("checker"))
-    for checker in checker_list:
-        if checker.text.strip().find('OK') != -1:
+        if i.attrib['status'] == 'OK':
             test_ok += 1
-    print test_ok, checker_list
-    if test_ok != len(checker_list):
+    print test_ok
+    if test_ok != len(test_tag):
         result['success'] = False
         result['score'] = 0
     else:
