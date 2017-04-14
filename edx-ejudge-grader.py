@@ -29,7 +29,7 @@ def each_cycle():
                 answer = grade(content)
             except BaseException:
                 file = open('last_untested_task','w')
-                file.write(content)
+                file.write(str(content))
                 file.close()
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
