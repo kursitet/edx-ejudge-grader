@@ -198,7 +198,7 @@ def post_results_to_xqueue(session, header, body):
     
     return success, msg
 
-def create_xqueue_header_and_body(submission_id, submission_key, correct, score, feedback, grader_id):
+def create_xqueue_header_and_body(submission_id, submission_key, correct, score, feedback):
     xqueue_header = {
         'submission_id': submission_id,
         'submission_key': submission_key,
@@ -208,7 +208,6 @@ def create_xqueue_header_and_body(submission_id, submission_key, correct, score,
         'msg': feedback,
         'correct': correct,
         'score': score,
-        'grader_id' : grader_id,
     }
     
     return xqueue_header, xqueue_body
