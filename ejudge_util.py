@@ -3,6 +3,7 @@ import csv
 import json
 import os
 import xml.etree.ElementTree as etree
+import random
 
 
 def create_task(grader_payload):
@@ -35,6 +36,7 @@ def get_contest_id(contest_name):
     try:
         file = open('./contest_name_to_id.json', 'r')
     except IOError:
+        print "create json contest name to id"
         create_contest_name_id_json()
     contest_table = json.load(file)
     file.close()
@@ -136,7 +138,7 @@ def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
                     'ignore_compile_errors',
                     'problem_navigation',
                     'rounding_mode = floor',
-                    'cr_serialization_key = 22723',
+                    'cr_serialization_key = ' + str(random.randint(10000, 99999)),
                     'enable_runlog_merge',
                     'advanced_layout',
                     'enable_l10n',
@@ -175,7 +177,6 @@ def get_problem_param(problem_name, problem_type):
         '[problem]',
         'short_name = ' + '"' + problem_name + '"',
         'long_name = ""',
-        'type = ' + problem_type,
         'scoring_checker = 0',
         'interactive_valuer = 0',
         'manual_checking = 0',
