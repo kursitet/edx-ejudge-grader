@@ -25,7 +25,12 @@ def each_cycle():
         print(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
-            answer = grade(content)
+            try:
+                answer = grade(content)
+            except BaseException:
+                file = open('last_untested_task','w')
+                file.write(content)
+                file.close()
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(
@@ -67,7 +72,7 @@ def answer_msg(answer):
     compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
     msg = ex_tag + compiler_tag
     # too large msg, edx exept error
-    return ex_tag
+    return exclamation
 
 
 def get_from_queue(queue_name, xqueue_session):

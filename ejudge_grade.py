@@ -57,7 +57,10 @@ def run_grade_in_ejudge(response, grader_payload):
 def pars_report(name_report_file, contest_path):
     result = dict()
     del_str_in_report_xml(contest_path, name_report_file)
-    result_xml = etree.parse(contest_path + 'report/' + name_report_file)
+    try:
+        result_xml = etree.parse(contest_path + 'report/' + name_report_file)
+    except etree.ParseError:
+        print "update session file"
     test_tag = result_xml.getroot().find("tests").findall("test")
     test_ok = 0
     if not test_tag:
