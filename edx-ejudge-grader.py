@@ -28,9 +28,9 @@ def each_cycle():
             try:
                 answer = grade(content)
             except BaseException:
-                file = open('last_untested_task','w')
-                file.write(str(content))
-                file.close()
+                answer['success'] = False
+                answer['score'] = 0
+                answer['error'] = 'Error.Try again later'
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(
@@ -72,6 +72,8 @@ def answer_msg(answer):
     compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
     msg = ex_tag + compiler_tag
     # too large msg, edx exept error
+    if answer['error']:
+        return answer['error']
     return exclamation
 
 
