@@ -1,7 +1,7 @@
 # coding=utf8
 import subprocess
 import xml.etree.ElementTree as etree
-
+from os import devnull
 import ejudge_util
 
 
@@ -50,8 +50,9 @@ def run_grade_in_ejudge(response, grader_payload):
     ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
     command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
     report_file = 1
+    DEVNULL = open(devnull, 'wb')
     while report_file != 0:
-        report_file = subprocess.call(command_dump_report, shell=True)
+        report_file = subprocess.call(command_dump_report, shell=True, stdout=DEVNULL,stderr=DEVNULL)
     result = pars_report(name_report_file, contest_path)
     return result
 
