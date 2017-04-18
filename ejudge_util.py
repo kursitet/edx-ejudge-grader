@@ -2,9 +2,9 @@
 import csv
 import json
 import os
-import xml.etree.ElementTree as etree
 import random
 import subprocess
+import xml.etree.ElementTree as etree
 
 
 def create_task(grader_payload):

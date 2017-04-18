@@ -1,15 +1,16 @@
 # coding=utf8
 
+import ast
 import json
 import logging
 import time
 import urllib2
 import urlparse
-import ast
+
+import ejudge_grade as ejudge
 import project_urls
 import settings
 import xqueue_util as util
-import ejudge_grade as ejudge
 
 log = logging.getLogger(__name__)
 

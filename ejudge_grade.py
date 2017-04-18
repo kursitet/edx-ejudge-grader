@@ -1,6 +1,5 @@
 # coding=utf8
 import subprocess
-import time
 import xml.etree.ElementTree as etree
 
 import ejudge_util
@@ -31,15 +30,18 @@ def run_grade_in_ejudge(response, grader_payload):
     contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
-    run_id, err = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
+    submit_run = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
                                     str(contest_id),
                                     "submit-run",
                                     "/home/ejudge/session.pwd",
                                     problem_name,
                                     lang,
                                     'response.txt'],
-                                   stdout=subprocess.PIPE).communicate()
-
+                                   stdout=subprocess.PIPE)
+    run_id, err = submit_run.communicate()
+    if not run_id:
+        ejudge_util.update_session_file()
+        run_id, err = submit_run.communicate()
     run_id = run_id.strip()
     name_report_file = 'report_' + run_id + '.xml'
     contest_path = ejudge_util.get_contest_path(contest_id)
@@ -47,11 +49,9 @@ def run_grade_in_ejudge(response, grader_payload):
     session_file = '/home/ejudge/session.pwd '
     ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
     command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
-    # КОСТЫЛЬ.это время, за которое еджадж должен проверить работу. сделать проверку в цикле
-    time.sleep(2)
-    report_file = False
-    report_file = subprocess.call(command_dump_report, shell=True)
-    print "report file = ", report_file
+    report_file = 1
+    while report_file != 0:
+        report_file = subprocess.call(command_dump_report, shell=True)
     result = pars_report(name_report_file, contest_path)
     return result
 
@@ -59,10 +59,7 @@ def run_grade_in_ejudge(response, grader_payload):
 def pars_report(name_report_file, contest_path):
     result = dict()
     del_str_in_report_xml(contest_path, name_report_file)
-    try:
-        result_xml = etree.parse(contest_path + 'report/' + name_report_file)
-    except etree.ParseError:
-        ejudge_util.update_session_file()
+    result_xml = etree.parse(contest_path + 'report/' + name_report_file)
     test_tag = result_xml.getroot().find("tests").findall("test")
     test_ok = 0
     if not test_tag:
