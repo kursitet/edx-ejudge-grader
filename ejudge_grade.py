@@ -40,7 +40,7 @@ def run_grade_in_ejudge(response, grader_payload):
                                     'response.txt'],
                                    stdout=subprocess.PIPE).communicate()
 
-    run_id = run_id.replace('/n', ' ').strip()
+    run_id = run_id.strip()
     name_report_file = 'report_' + run_id + '.xml'
     contest_path = ejudge_util.get_contest_path(contest_id)
     report_path = contest_path + 'report/' + name_report_file
@@ -49,7 +49,9 @@ def run_grade_in_ejudge(response, grader_payload):
     command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
     # КОСТЫЛЬ.это время, за которое еджадж должен проверить работу. сделать проверку в цикле
     time.sleep(2)
-    subprocess.call(command_dump_report, shell=True)
+    report_file = False
+    report_file = subprocess.call(command_dump_report, shell=True)
+    print "report file = ", report_file
     result = pars_report(name_report_file, contest_path)
     return result
 
@@ -60,7 +62,7 @@ def pars_report(name_report_file, contest_path):
     try:
         result_xml = etree.parse(contest_path + 'report/' + name_report_file)
     except etree.ParseError:
-        print "update session file"
+        ejudge_util.update_session_file()
     test_tag = result_xml.getroot().find("tests").findall("test")
     test_ok = 0
     if not test_tag:
@@ -70,7 +72,7 @@ def pars_report(name_report_file, contest_path):
     for i in test_tag:
         if i.attrib['status'] == 'OK':
             test_ok += 1
-    print test_ok
+    print "number success test = " + test_ok
     if test_ok != len(test_tag):
         result['success'] = False
         result['score'] = 0

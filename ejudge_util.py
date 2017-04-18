@@ -4,6 +4,7 @@ import json
 import os
 import xml.etree.ElementTree as etree
 import random
+import subprocess
 
 
 def create_task(grader_payload):
@@ -296,7 +297,7 @@ def check_grader_payload(new_payload, contest_path, problem_name):
         change_list.append('input_data')
     if old_answer != new_answer:
         change_list.append('output_data')
-    print change_list
+    print "check grader payload. change list = ",change_list
     return change_list
 
 
@@ -328,3 +329,12 @@ def create_contest_name_id_json():
             name_to_id[name] = str(contest_id)
     json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
 
+
+def update_session_file():
+    command = '/opt/ejudge/bin/ejudge-contests-cmd 2 master-login /home/ejudge/session.pwd'
+    file_login = open('login', 'r')
+    login = file_login.readline().strip()
+    password = file_login.readline()
+    command = command + ' ' + login + ' ' + password
+    subprocess.call(command, shell=True)
+    print "session file updated"

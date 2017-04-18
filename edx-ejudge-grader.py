@@ -28,6 +28,7 @@ def each_cycle():
             try:
                 answer = grade(content)
             except BaseException:
+                answer = dict()
                 answer['success'] = False
                 answer['score'] = 0
                 answer['error'] = 'Error.Try again later'
@@ -50,7 +51,7 @@ def grade(content):
     student_info = json.loads(body.get('student_info', '{}'))
     grader_payload = ast.literal_eval(body['grader_payload'].strip())
     resp = body.get('student_response', '')
-    print grader_payload
+    print "grader payload = ", grader_payload
     answer = ejudge.grader(resp, grader_payload)
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
@@ -69,8 +70,8 @@ def answer_msg(answer):
     else:
         exclamation = 'Incorrect unswer!'
     ex_tag = '<p><em>'+exclamation+'</em>'+'</p><br>'
-    compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
-    msg = ex_tag + compiler_tag
+    #compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
+    #msg = ex_tag + compiler_tag
     # too large msg, edx exept error
     if answer['error']:
         return answer['error']
