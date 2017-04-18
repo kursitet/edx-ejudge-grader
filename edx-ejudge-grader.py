@@ -28,11 +28,11 @@ def each_cycle():
         if success_get and success_parse:
             try:
                 answer = grade(content)
-            except BaseException:
+            except BaseException as err:
                 answer = dict()
                 answer['success'] = False
                 answer['score'] = 0
-                answer['error'] = 'Error.Try again later'
+                answer['error'] = 'Error.Try again later.Error msg:' + err
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(
@@ -70,11 +70,11 @@ def answer_msg(answer):
         exclamation = 'Good Job!'
     else:
         exclamation = 'Incorrect unswer!'
-    ex_tag = '<p><em>'+exclamation+'</em>'+'</p><br>'
+    ex_tag = '<p><em>'+exclamation+'</em></p>'
     #compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
     #msg = ex_tag + compiler_tag
     # too large msg, edx exept error
-    if answer['error']:
+    if 'error' in answer:
         return answer['error']
     return exclamation
 

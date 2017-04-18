@@ -69,7 +69,7 @@ def pars_report(name_report_file, contest_path):
     for i in test_tag:
         if i.attrib['status'] == 'OK':
             test_ok += 1
-    print "number success test = " + test_ok
+    print "number success test = ", test_ok
     if test_ok != len(test_tag):
         result['success'] = False
         result['score'] = 0
