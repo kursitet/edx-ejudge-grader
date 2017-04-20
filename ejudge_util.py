@@ -24,6 +24,7 @@ def create_task(grader_payload):
         create_problem_dir(problem_name, contest_path)
         create_test_answer_data(problem_name, contest_path, test_data,
                                 answer_data)
+        update_session_file(contest_id)
         print 'Contest files create!'
     elif not problem_exist(contest_id, problem_name):
         create_problem(problem_name, problem_type, contest_id, test_data,
@@ -282,7 +283,7 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
 
 def save_grader_payload(grader_payload, contest_path, problem_name):
     file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_payload.json'
-    json.dump(open(file_payload, 'w'), grader_payload)
+    json.dump(grader_payload, open(file_payload, 'w'))
 
 
 def check_grader_payload(new_payload, contest_path, problem_name):
@@ -330,11 +331,35 @@ def create_contest_name_id_json():
     json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
 
 
-def update_session_file():
-    command = '/opt/ejudge/bin/ejudge-contests-cmd 2 master-login /home/ejudge/session.pwd'
+def update_session_file(contest_id):
+    session_file_name = get_session_file_name(contest_id)
+    command = '/opt/ejudge/bin/ejudge-contests-cmd ' + contest_id + ' master-login ' + session_file_name
     file_login = open('login', 'r')
     login = file_login.readline().strip()
     password = file_login.readline()
     command = command + ' ' + login + ' ' + password
     subprocess.call(command, shell=True)
     print "session file updated"
+
+
+def get_session_file_name(contest_id):
+    name = '/home/ejudge/sessions/' + contest_id + '.pwd '
+    return name
+
+def create_makefile(problem_path):
+    makefile = ['### BEGIN ejudge auto-generated makefile ###',
+                'EJUDGE_PREFIX_DIR ?= /opt/ejudge',
+                'EJUDGE_CONTESTS_HOME_DIR ?= /home/judges',
+                'EJUDGE_SERVER_BIN_PATH ?= /opt/ejudge/libexec/ejudge/bin',
+                'EXECUTE = ${EJUDGE_PREFIX_DIR}/bin/ejudge-execute',
+                'EXECUTE_FLAGS =  --use-stdin --use-stdout --test-pattern=%03d.dat --corr-pattern=%03d.ans',
+                'NORMALIZE = ${EJUDGE_SERVER_BIN_PATH}/ej-normalize',
+                'NORMALIZE_FLAGS = --workdir=tests --test-pattern=%03d.dat --corr-pattern=%03d.ans --type=nl',
+                'all :',
+                'check_settings : all normalize',
+                'normalize :',
+                '	${NORMALIZE} ${NORMALIZE_FLAGS} --all-tests',
+                'clean :',
+                '	-rm -f *.o *.class *.exe *~ *.bak',
+                '### END ejudge auto-generated makefile ###'
+                ]

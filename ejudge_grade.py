@@ -11,6 +11,7 @@ def grader(response, grader_payload):
                                               grader_payload['problem_name'])
     if not contest_id or not problem_exist:
         ejudge_util.create_task(grader_payload)
+        contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     check_payload = ejudge_util.check_grader_payload(grader_payload,
                                                      ejudge_util.get_contest_path(
                                                          contest_id),
@@ -30,29 +31,30 @@ def run_grade_in_ejudge(response, grader_payload):
     contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
+    session_file = ejudge_util.get_session_file_name(contest_id)
     submit_run = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
                                     str(contest_id),
                                     "submit-run",
-                                    "/home/ejudge/session.pwd",
+                                    session_file,
                                     problem_name,
                                     lang,
                                     'response.txt'],
-                                   stdout=subprocess.PIPE)
+                                    stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
     if not run_id:
+        submit_run.kill()
         ejudge_util.update_session_file()
         run_id, err = submit_run.communicate()
     run_id = run_id.strip()
     name_report_file = 'report_' + run_id + '.xml'
     contest_path = ejudge_util.get_contest_path(contest_id)
     report_path = contest_path + 'report/' + name_report_file
-    session_file = '/home/ejudge/session.pwd '
     ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
     command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
     report_file = 1
     DEVNULL = open(devnull, 'wb')
     while report_file != 0:
-        report_file = subprocess.call(command_dump_report, shell=True, stdout=DEVNULL,stderr=DEVNULL)
+        report_file = subprocess.call(command_dump_report, shell=True, stdout=DEVNULL, stderr=DEVNULL)
     result = pars_report(name_report_file, contest_path)
     return result
 
