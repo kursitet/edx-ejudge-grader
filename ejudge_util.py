@@ -352,7 +352,7 @@ def get_session_file_name(contest_id):
 def get_session_key(contest_id):
     name = get_session_file_name(contest_id)
     session_file = open(name, 'r')
-    key = session_file.read()
+    key = session_file.read().strip()
     session_file.close()
     return key
 

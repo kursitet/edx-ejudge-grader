@@ -33,25 +33,13 @@ def run_grade_in_ejudge(response, grader_payload):
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
     run_id = ejudge_submit_run(contest_id, problem_name, lang)
-    # if not run_id:
-    #     ejudge_util.update_session_file(contest_id)
-    #     run_id = ejudge_submit_run(contest_id, problem_name, lang)
+    if not run_id:
+        ejudge_util.update_session_file(contest_id)
+        run_id = ejudge_submit_run(contest_id, problem_name, lang)
     run_id = run_id.strip()
     report = ejudge_dump_report(contest_id, run_id)
     if not report:
         pass
-    # name_report_file = 'report_' + run_id + '.xml'
-    # contest_path = ejudge_util.get_contest_path(contest_id)
-    # report_path = contest_path + 'report/' + name_report_file
-    # ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
-    # session = '--session '.join(session_key)
-    # command_dump_report = ejudge_cmd + str(
-    #     contest_id) + ' dump-report ' + session + ' ' + run_id + ' >' + report_path
-    # report_file = 1
-    # DEVNULL = open(devnull, 'wb')
-    # while report_file != 0:
-    #     report_file = subprocess.call(command_dump_report, shell=True,
-    #                                   stdout=DEVNULL, stderr=DEVNULL)
     result = pars_report(contest_id, run_id)
     return result
 
@@ -110,7 +98,7 @@ def ejudge_submit_run(contest_id, problem_name, lang):
                'response.txt']
     submit_run = subprocess.Popen(command, stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
-    print 'run id = ', run_id, ' contest_id = ', contest_id
+    print 'run id = ', run_id, 'contest_id = ', contest_id
     return run_id
 
 
@@ -128,7 +116,7 @@ def ejudge_dump_report(contest_id, run_id):
                report_path]
     cmd_str = ''
     for arg in command:
-        cmd_str.join(arg + ' ')
+        cmd_str += arg + ' '
     report_file = 1
     DEVNULL = open(devnull, 'wb')
     while report_file != 0:

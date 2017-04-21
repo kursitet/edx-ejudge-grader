@@ -68,6 +68,8 @@ def answer_msg(answer):
     #compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
     #msg = ex_tag + compiler_tag
     # too large msg, edx exept error
+    button = '<button>Подробнее</button>'
+    script = '<script></script>'
     if 'error' in answer:
         return answer['error']
     return exclamation
