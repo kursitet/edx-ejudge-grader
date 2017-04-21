@@ -345,17 +345,19 @@ def update_session_file(contest_id):
 
 
 def get_session_file_name(contest_id):
-    name = '/home/ejudge/sessions/' + contest_id + '.pwd '
+    name = '/home/ejudge/sessions/' + contest_id + '.pwd'
     return name
+
 
 def get_session_key(contest_id):
     name = get_session_file_name(contest_id)
-    session_file = open(name,'r')
+    session_file = open(name, 'r')
     key = session_file.read()
     session_file.close()
     return key
 
-def create_makefile(contest_path,problem_name):
+
+def create_makefile(contest_path, problem_name):
     makefile = ['### BEGIN ejudge auto-generated makefile ###',
                 'EJUDGE_PREFIX_DIR ?= /opt/ejudge',
                 'EJUDGE_CONTESTS_HOME_DIR ?= /home/judges',

@@ -2,6 +2,7 @@
 import subprocess
 import xml.etree.ElementTree as etree
 from os import devnull
+
 import ejudge_util
 
 
@@ -31,39 +32,34 @@ def run_grade_in_ejudge(response, grader_payload):
     contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
-    session_file = ejudge_util.get_session_file_name(contest_id)
-    session_key = ejudge_util.get_session_key(contest_id)
-    submit_run = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
-                                    str(contest_id),
-                                    "submit-run",
-                                   '--session',
-                                    session_key,
-                                    problem_name,
-                                    lang,
-                                    'response.txt'],
-                                    stdout=subprocess.PIPE)
-    run_id, err = submit_run.communicate()
-    # проверять возвращённую строку на ejudge-cmd
+    run_id = ejudge_submit_run(contest_id, problem_name, lang)
     if not run_id:
         ejudge_util.update_session_file(contest_id)
-        # session_key = ejudge_util.get_session_key(contest_id) решить проблему с сессионным ключом
-        run_id, err = submit_run.communicate()
+        run_id = ejudge_submit_run(contest_id, problem_name, lang)
     run_id = run_id.strip()
-    name_report_file = 'report_' + run_id + '.xml'
-    contest_path = ejudge_util.get_contest_path(contest_id)
-    report_path = contest_path + 'report/' + name_report_file
-    ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
-    command_dump_report = ejudge_cmd + str(contest_id) + ' dump-report ' + session_file + run_id + ' >' + report_path
-    report_file = 1
-    DEVNULL = open(devnull, 'wb')
-    while report_file != 0:
-        report_file = subprocess.call(command_dump_report, shell=True, stdout=DEVNULL, stderr=DEVNULL)
-    result = pars_report(name_report_file, contest_path)
+    report = ejudge_dump_report(contest_id, run_id)
+    if not report:
+        pass
+    # name_report_file = 'report_' + run_id + '.xml'
+    # contest_path = ejudge_util.get_contest_path(contest_id)
+    # report_path = contest_path + 'report/' + name_report_file
+    # ejudge_cmd = '/opt/ejudge/bin/ejudge-contests-cmd '
+    # session = '--session '.join(session_key)
+    # command_dump_report = ejudge_cmd + str(
+    #     contest_id) + ' dump-report ' + session + ' ' + run_id + ' >' + report_path
+    # report_file = 1
+    # DEVNULL = open(devnull, 'wb')
+    # while report_file != 0:
+    #     report_file = subprocess.call(command_dump_report, shell=True,
+    #                                   stdout=DEVNULL, stderr=DEVNULL)
+    result = pars_report(contest_id, run_id)
     return result
 
 
-def pars_report(name_report_file, contest_path):
+def pars_report(contest_id, run_id):
     result = dict()
+    contest_path = ejudge_util.get_contest_path(contest_id)
+    name_report_file = 'report_' + run_id + '.xml'
     del_str_in_report_xml(contest_path, name_report_file)
     result_xml = etree.parse(contest_path + 'report/' + name_report_file)
     test_tag = result_xml.getroot().find("tests").findall("test")
@@ -100,3 +96,41 @@ def del_str_in_report_xml(contest_path, name_report):
     for line in f_line[2:]:
         f.write(line)
     f.close()
+
+
+def ejudge_submit_run(contest_id, problem_name, lang):
+    session_key = ejudge_util.get_session_key()
+    command = ['/opt/ejudge/bin/ejudge-contests-cmd',
+               str(contest_id),
+               'submit-run',
+               '--session',
+               session_key,
+               problem_name,
+               lang,
+               'response.txt']
+    submit_run = subprocess.Popen(command, stdout=subprocess.PIPE)
+    run_id, err = submit_run.communicate()
+    return run_id
+
+
+def ejudge_dump_report(contest_id, run_id):
+    name_report_file = 'report_' + run_id + '.xml'
+    contest_path = ejudge_util.get_contest_path(contest_id)
+    report_path = contest_path + 'report/' + name_report_file
+    session_key = ejudge_util.get_session_key(contest_id)
+    command = ['/opt/ejudge/bin/ejudge-contests-cmd',
+               contest_id,
+               'dump-report',
+               '--session',
+               session_key,
+               run_id, '>',
+               report_path]
+    cmd_str = ''
+    for arg in command:
+        cmd_str.join(arg + ' ')
+    report_file = 1
+    DEVNULL = open(devnull, 'wb')
+    while report_file != 0:
+        report_file = subprocess.call(cmd_str, shell=True,
+                                      stdout=DEVNULL, stderr=DEVNULL)
+    return True
