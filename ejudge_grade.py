@@ -33,9 +33,9 @@ def run_grade_in_ejudge(response, grader_payload):
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
     run_id = ejudge_submit_run(contest_id, problem_name, lang)
-    if not run_id:
-        ejudge_util.update_session_file(contest_id)
-        run_id = ejudge_submit_run(contest_id, problem_name, lang)
+    # if not run_id:
+    #     ejudge_util.update_session_file(contest_id)
+    #     run_id = ejudge_submit_run(contest_id, problem_name, lang)
     run_id = run_id.strip()
     report = ejudge_dump_report(contest_id, run_id)
     if not report:
@@ -99,7 +99,7 @@ def del_str_in_report_xml(contest_path, name_report):
 
 
 def ejudge_submit_run(contest_id, problem_name, lang):
-    session_key = ejudge_util.get_session_key()
+    session_key = ejudge_util.get_session_key(contest_id)
     command = ['/opt/ejudge/bin/ejudge-contests-cmd',
                str(contest_id),
                'submit-run',
@@ -110,6 +110,7 @@ def ejudge_submit_run(contest_id, problem_name, lang):
                'response.txt']
     submit_run = subprocess.Popen(command, stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
+    print 'run id = ', run_id, ' contest_id = ', contest_id
     return run_id
 
 
