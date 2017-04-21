@@ -272,13 +272,15 @@ def create_problem(problem_name, problem_type, contest_id, test_data,
     create_problem_dir(problem_name, contest_path)
     create_test_answer_data(problem_name, contest_path, test_data, answer_data)
     problem_add_in_serve(contest_path, problem_name, problem_type)
+    create_makefile()
 
 
 def problem_add_in_serve(contest_path, problem_name, problem_type):
     problem_param = get_problem_param(problem_name, problem_type)
     serve_path = contest_path + 'conf/serve.cfg'
     with open(serve_path, 'a') as f:
-        f.write(problem_param)
+        for row in problem_param:
+            f.write(row + '\n')
 
 
 def save_grader_payload(grader_payload, contest_path, problem_name):
@@ -346,7 +348,14 @@ def get_session_file_name(contest_id):
     name = '/home/ejudge/sessions/' + contest_id + '.pwd '
     return name
 
-def create_makefile(problem_path):
+def get_session_key(contest_id):
+    name = get_session_file_name(contest_id)
+    session_file = open(name,'r')
+    key = session_file.read()
+    session_file.close()
+    return key
+
+def create_makefile(contest_path,problem_name):
     makefile = ['### BEGIN ejudge auto-generated makefile ###',
                 'EJUDGE_PREFIX_DIR ?= /opt/ejudge',
                 'EJUDGE_CONTESTS_HOME_DIR ?= /home/judges',
@@ -363,3 +372,8 @@ def create_makefile(problem_path):
                 '	-rm -f *.o *.class *.exe *~ *.bak',
                 '### END ejudge auto-generated makefile ###'
                 ]
+    name = contest_path + 'problems/' + problem_name + '/Makefile'
+    file = open(name, 'w')
+    for row in makefile:
+        file.write(row)
+    file.close()

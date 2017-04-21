@@ -26,13 +26,7 @@ def each_cycle():
         print(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
-            try:
-                answer = grade(content)
-            except BaseException as err:
-                answer = dict()
-                answer['success'] = False
-                answer['score'] = 0
-                answer['error'] = 'Error.Try again later.Error msg:' + err
+            answer = grade(content)
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(

@@ -32,18 +32,21 @@ def run_grade_in_ejudge(response, grader_payload):
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
     session_file = ejudge_util.get_session_file_name(contest_id)
+    session_key = ejudge_util.get_session_key(contest_id)
     submit_run = subprocess.Popen(["/opt/ejudge/bin/ejudge-contests-cmd",
                                     str(contest_id),
                                     "submit-run",
-                                    session_file,
+                                   '--session',
+                                    session_key,
                                     problem_name,
                                     lang,
                                     'response.txt'],
                                     stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
+    # проверять возвращённую строку на ejudge-cmd
     if not run_id:
-        submit_run.kill()
-        ejudge_util.update_session_file()
+        ejudge_util.update_session_file(contest_id)
+        # session_key = ejudge_util.get_session_key(contest_id) решить проблему с сессионным ключом
         run_id, err = submit_run.communicate()
     run_id = run_id.strip()
     name_report_file = 'report_' + run_id + '.xml'
