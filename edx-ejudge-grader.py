@@ -64,15 +64,29 @@ def answer_msg(answer):
         exclamation = 'Good Job!'
     else:
         exclamation = 'Incorrect unswer!'
-    ex_tag = '<p><em>'+exclamation+'</em></p>'
-    #compiler_tag = '<p><em>Compiler Output</em><br>'+answer['compiler_output'] + '</p>'
-    #msg = ex_tag + compiler_tag
-    # too large msg, edx exept error
-    button = '<button>Подробнее</button>'
-    script = '<script></script>'
+    button = '''<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#grader-answer-modal" id="grader-answer-btn">Подробнее</button>'''
+    modal_window = '''<div class="modal fade" id="grader-answer-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+          <span >x</span>
+        </button>
+        <h4 class="modal-title" id="grader-answer-label">zagol</h4>
+      </div>
+      <div class="modal-body">
+        telo
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+      </div>
+    </div>
+  </div>
+</div> '''
+    ans = button + modal_window
     if 'error' in answer:
         return answer['error']
-    return exclamation
+    return ans
 
 
 def get_from_queue(queue_name, xqueue_session):

@@ -305,7 +305,7 @@ def check_grader_payload(new_payload, contest_path, problem_name):
 
 
 def update_payload(change_list, grader_payload):
-    contest_id = get_contest_id(grader_payload['contest_name'])
+    contest_id = get_contest_id(grader_payload['course_name'])
     contest_path = get_contest_path(contest_id)
     problem_name = grader_payload['problem_name']
     test_data = grader_payload['input_data']

@@ -20,7 +20,6 @@ def grader(response, grader_payload):
                                                          'problem_name'])
     if check_payload:
         ejudge_util.update_payload(check_payload, grader_payload)
-        print 'Test and answer data update'
     result = run_grade_in_ejudge(response, grader_payload)
     return result
 
