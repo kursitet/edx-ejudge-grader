@@ -64,25 +64,15 @@ def answer_msg(answer):
         exclamation = 'Good Job!'
     else:
         exclamation = 'Incorrect unswer!'
-    button = '''<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#grader-answer-modal" id="grader-answer-btn">Подробнее</button>'''
-    modal_window = '''<div class="modal fade" id="grader-answer-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
-          <span >x</span>
-        </button>
-        <h4 class="modal-title" id="grader-answer-label">zagol</h4>
-      </div>
-      <div class="modal-body">
-        telo
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+    button = '''<a class="instructor-info-action" id="grader-answer-btn" href="#grader-answer-modal">Подробнее</button>'''
+    modal_window = '''<section aria-hidden="true" class="modal staff-modal" id="grader-answer-modal" style="height: 75%; display: none; position: fixed; opacity: 1; z-index: 11000; left: 50%; margin-left: -481px; top: 100px;">
+    <div class="inner-wrapper" style="color: black; overflow: auto;">
+      <header><h2><span class="display_name">Результат тестов</span></h2></header>
+      <div id="grade-info" style="display: block;">
+      	Здесь будет результат проверки
       </div>
     </div>
-  </div>
-</div> '''
+  </section>'''
     ans = button + modal_window
     if 'error' in answer:
         return answer['error']
