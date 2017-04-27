@@ -34,7 +34,7 @@ def each_cycle():
                 content_header['submission_key'],
                 answer['success'],
                 answer['score'],
-                ejudgeanswer_msg(answer))
+                ejudge.answer_msg(answer))
             (success, msg) = util.post_results_to_xqueue(session, json.dumps(
                 xqueue_header), json.dumps(xqueue_body), )
             if success:

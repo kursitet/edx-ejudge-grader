@@ -149,8 +149,8 @@ def answer_msg(answer):
     button = '''<button id="answer_grader">Answer</button>'''
     css = '''<style type="text/css">
     #modal_form {
-    width: 500px;
-    height: 500px; /* Рaзмеры дoлжны быть фиксирoвaны */
+    width: 300px;
+    height: 300px; /* Рaзмеры дoлжны быть фиксирoвaны */
     border-radius: 5px;
     border: 3px #000 solid;
     background: #fff;
