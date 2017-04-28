@@ -227,9 +227,9 @@ def answer_msg(answer):
 def result_test_table(tests):
     rows = ''
     for i in tests:
-        row = '<tr><th>'+i+'</th><th>'+tests[i]+'</th></tr>'
+        row = '<tr><td>'+i+'</td><td>'+tests[i]+'</td></tr>'
         rows +=row
-    start_tag = '''<table><tr>
+    start_tag = '''<table border="1" align="center"><tr>
                    <th>Test number</th>
                      <th>Result</th>
                      </tr>'''
