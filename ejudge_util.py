@@ -172,6 +172,7 @@ def get_lang_id(lang_short_name):
     for lang in lang_list:
         if lang['name'] == lang_short_name:
             return lang['id']
+    return False
 
 
 def get_problem_param(problem_name, problem_type):
@@ -189,6 +190,8 @@ def get_problem_param(problem_name, problem_type):
         'combined_stdout = 0',
         'binary_input = 0',
         'ignore_exit_code = 0',
+        'time_limit = 5'
+        'real_time_limit = 15'
         'test_sfx = ".dat"',
         'test_pat = ""',
         'use_corr',
@@ -246,6 +249,8 @@ def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
             file_dat.close()
             file_ans.close()
             num_test += 1
+    else:
+        pass #raise not in\out data
 
 
 def problem_exist(contest_id, problem_name):
@@ -272,7 +277,7 @@ def create_problem(problem_name, problem_type, contest_id, test_data,
     create_problem_dir(problem_name, contest_path)
     create_test_answer_data(problem_name, contest_path, test_data, answer_data)
     problem_add_in_serve(contest_path, problem_name, problem_type)
-    create_makefile()
+    create_makefile(contest_path, problem_name)
 
 
 def problem_add_in_serve(contest_path, problem_name, problem_type):
@@ -300,7 +305,7 @@ def check_grader_payload(new_payload, contest_path, problem_name):
         change_list.append('input_data')
     if old_answer != new_answer:
         change_list.append('output_data')
-    print "check grader payload. change list = ",change_list
+    print "check grader payload. change list = ", change_list
     return change_list
 
 

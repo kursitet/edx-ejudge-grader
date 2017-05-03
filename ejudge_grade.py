@@ -2,6 +2,8 @@
 import subprocess
 import xml.etree.ElementTree as etree
 from os import devnull
+import re
+import error as e
 
 import ejudge_util
 
@@ -63,15 +65,15 @@ def pars_report(contest_id, run_id):
             test_ok += 1
             tests[num] = 'OK'
         elif status == 'WA':
-            tests[num] = 'Wrong Answer'
+            tests[num] = 'Неправильный ответ'
         elif status == 'RT':
-            tests[num] = 'Run-Time Error'
+            tests[num] = 'Ошибка выполнения'
         elif status == 'CE':
-            tests[num] = 'Compilation Error'
+            tests[num] = 'Ошибка компиляции'
         elif status == 'PT':
-            tests[num] = 'Partial Solution'
+            tests[num] = 'Частичное решение'
         elif status == 'PE':
-            tests[num] = 'Presentation Error'
+            tests[num] = 'Ошибка представления ответа'
     print "number success test = ", test_ok
     result['tests'] = tests
     if test_ok != len(test_tag):
@@ -238,3 +240,39 @@ def result_test_table(tests):
     end_tag = '</table>'
     table = start_tag + rows + end_tag
     return table
+
+
+def validate_payload(grader_payload):
+    import voluptuous as vol
+    schem = vol.Schema({
+        'course_name': vol.All(str, vol.Length(min=2, max=50)),
+        'problem_type': 'standart',
+        'problem_name': vol.All(str, vol.Length(min=1, max=3)),
+        'lang_short_name': str,
+        'input_data': vol.All(list, vol.Length(min=1, max=15)),
+        'output_data': vol.All(list, vol.Length(min=1, max=15)),
+    }, extra=vol.REMOVE_EXTRA, required=True)
+    try:
+        schem(grader_payload)
+    except vol.er.MultipleInvalid, err:
+        raise e.ValidationError(str(err)[str(err).find('@'):])
+    contest_name = grader_payload['course_name']
+    problem_name = grader_payload['problem_name']
+    lang_name = grader_payload['lang_short_name']
+    test_data = grader_payload['input_data']
+    answer_data = grader_payload['output_data']
+    cyrilic = re.compile(u'[а-яё]', re.I)
+    metasymbol = re.compile(r'[%$#@&<>!]', re.I)
+    for key in grader_payload:
+        if len(grader_payload[key]) == 0:
+            raise e.EmptyPayload(key)
+    if not ejudge_util.get_lang_id(lang_name):
+        raise e.ValidationError('lang_short_name')
+    if len(test_data) != len(answer_data):
+        raise e.ValidationError('in\output_data')
+    if re.search(cyrilic, contest_name) is not None and re.search(metasymbol, contest_name) is not None:
+        raise e.ValidationError('contest_name')
+    if re.search(cyrilic, problem_name) is not None and re.search(metasymbol,
+                                                                  problem_name) is not None:
+        raise e.ValidationError('problem_name')
+

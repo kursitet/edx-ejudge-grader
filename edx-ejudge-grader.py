@@ -44,7 +44,7 @@ def each_cycle():
 def grade(content):
     body = json.loads(content['xqueue_body'])
     student_info = json.loads(body.get('student_info', '{}'))
-    grader_payload = ast.literal_eval(body['grader_payload'].strip())
+    grader_payload = ast.literal_eval(body['grader_payload'].strip().lower())
     resp = body.get('student_response', '')
     print "grader payload = ", grader_payload
     answer = ejudge.grader(resp, grader_payload)
