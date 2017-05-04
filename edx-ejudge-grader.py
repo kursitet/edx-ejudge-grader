@@ -7,11 +7,12 @@ import time
 import urllib2
 import urlparse
 
-import ejudge_grade as ejudge
+import edx_util as edx
 import error as e
 import project_urls
 import settings
 import xqueue_util as util
+from ejudge_grade import grader
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def each_cycle():
     success_length, queue_length = get_queue_length(QUEUE_NAME, session)
     if success_length and queue_length > 0:
         success_get, queue_item = get_from_queue(QUEUE_NAME, session)
-        print(queue_item)
+        logging.info(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
             answer = grade(content)
@@ -35,28 +36,30 @@ def each_cycle():
                 content_header['submission_key'],
                 answer['success'],
                 answer['score'],
-                ejudge.answer_msg(answer))
+                edx.answer_msg(answer))
             (success, msg) = util.post_results_to_xqueue(session, json.dumps(
                 xqueue_header), json.dumps(xqueue_body), )
             if success:
+                logging.info("successfully posted result back to xqueue")
                 print("successfully posted result back to xqueue")
 
 
 def grade(content):
     body = json.loads(content['xqueue_body'])
     student_info = json.loads(body.get('student_info', '{}'))
-    grader_payload = ast.literal_eval(body['grader_payload'].strip().lower())
+    try:
+        grader_payload = ast.literal_eval(
+            body['grader_payload'].strip().lower())
+    except SyntaxError, err:
+        return edx.answer_after_error(err)
     resp = body.get('student_response', '')
     print "grader payload = ", grader_payload
     try:
-        ejudge.validate_payload(grader_payload)
+        edx.validate_payload(grader_payload)
     except (e.ValidationError, e.EmptyPayload), err:
-        answer = dict()
-        answer['error'] = err.msg
-        answer['success'] = None
-        answer['score'] = None
-        return answer
-    answer = ejudge.grader(resp, grader_payload)
+        logging.warning(err.msg)
+        return edx.answer_after_error(err)
+    answer = grader(resp, grader_payload)
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
         response = urllib2.urlopen(fileurl)
@@ -105,7 +108,8 @@ def get_queue_length(queue_name, xqueue_session):
 
 
 try:
-    logging.basicConfig()
+    logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
+                        level=logging.DEBUG)
     while True:
         each_cycle()
         time.sleep(2)

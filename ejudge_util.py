@@ -1,6 +1,7 @@
 # coding=utf8
 import csv
 import json
+import logging
 import os
 import random
 import subprocess
@@ -25,11 +26,11 @@ def create_task(grader_payload):
         create_test_answer_data(problem_name, contest_path, test_data,
                                 answer_data)
         update_session_file(contest_id)
-        print 'Contest files create!'
+        logging.info('Contest files create!')
     elif not problem_exist(contest_id, problem_name):
         create_problem(problem_name, problem_type, contest_id, test_data,
                        answer_data)
-        print 'Problem create'
+        logging.info('Problem create')
     save_grader_payload(grader_payload, get_contest_path(contest_id),
                         problem_name)
 
@@ -38,7 +39,8 @@ def get_contest_id(contest_name):
     try:
         file = open('./contest_name_to_id.json', 'r')
     except IOError:
-        print "create json contest name to id"
+        logging.warning('Not found file: contest_name_to_id.json')
+        logging.info("create json contest name to id")
         create_contest_name_id_json()
     contest_table = json.load(file)
     file.close()
@@ -190,8 +192,8 @@ def get_problem_param(problem_name, problem_type):
         'combined_stdout = 0',
         'binary_input = 0',
         'ignore_exit_code = 0',
-        'time_limit = 5'
-        'real_time_limit = 15'
+        'time_limit = 5',
+        'real_time_limit = 15',
         'test_sfx = ".dat"',
         'test_pat = ""',
         'use_corr',
@@ -240,17 +242,14 @@ def create_problem_dir(problem_name, contest_path):
 def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
     test_path = contest_path + 'problems/' + problem_name + '/' + 'tests/'
     num_test = 1
-    if len(test_data) == len(answer_data):
-        for i in range(0, len(test_data)):
-            file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
-            file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
-            file_dat.write(test_data[i])
-            file_ans.write(answer_data[i])
-            file_dat.close()
-            file_ans.close()
-            num_test += 1
-    else:
-        pass #raise not in\out data
+    for i in range(0, len(test_data)):
+        file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
+        file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
+        file_dat.write(test_data[i])
+        file_ans.write(answer_data[i])
+        file_dat.close()
+        file_ans.close()
+        num_test += 1
 
 
 def problem_exist(contest_id, problem_name):
@@ -284,6 +283,7 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
     problem_param = get_problem_param(problem_name, problem_type)
     serve_path = contest_path + 'conf/serve.cfg'
     with open(serve_path, 'a') as f:
+        f.write('\n')
         for row in problem_param:
             f.write(row + '\n')
 
@@ -305,7 +305,7 @@ def check_grader_payload(new_payload, contest_path, problem_name):
         change_list.append('input_data')
     if old_answer != new_answer:
         change_list.append('output_data')
-    print "check grader payload. change list = ", change_list
+    logging.info("check grader payload. change list = " + str(change_list))
     return change_list
 
 
@@ -317,7 +317,7 @@ def update_payload(change_list, grader_payload):
     answer_data = grader_payload['output_data']
     create_test_answer_data(problem_name, contest_path, test_data, answer_data)
     save_grader_payload(grader_payload, contest_path, problem_name)
-    print 'Test and answer data update'
+    logging.info('Test and answer data update')
 
 
 def create_contest_name_id_json():
@@ -346,7 +346,7 @@ def update_session_file(contest_id):
     password = file_login.readline()
     command = command + ' ' + login + ' ' + password
     subprocess.call(command, shell=True)
-    print "session file updated"
+    logging.info("session file updated")
 
 
 def get_session_file_name(contest_id):
