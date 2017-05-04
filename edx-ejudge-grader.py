@@ -3,6 +3,7 @@
 import ast
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import time
 import urllib2
 import urlparse
