@@ -8,6 +8,7 @@ import urllib2
 import urlparse
 
 import ejudge_grade as ejudge
+import error as e
 import project_urls
 import settings
 import xqueue_util as util
@@ -47,6 +48,14 @@ def grade(content):
     grader_payload = ast.literal_eval(body['grader_payload'].strip().lower())
     resp = body.get('student_response', '')
     print "grader payload = ", grader_payload
+    try:
+        ejudge.validate_payload(grader_payload)
+    except (e.ValidationError, e.EmptyPayload), err:
+        answer = dict()
+        answer['error'] = err.msg
+        answer['success'] = None
+        answer['score'] = None
+        return answer
     answer = ejudge.grader(resp, grader_payload)
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():

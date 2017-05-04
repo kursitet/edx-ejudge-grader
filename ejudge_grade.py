@@ -1,11 +1,13 @@
 # coding=utf8
+import re
 import subprocess
 import xml.etree.ElementTree as etree
 from os import devnull
-import re
-import error as e
+
+import voluptuous as vol
 
 import ejudge_util
+import error as e
 
 
 def grader(response, grader_payload):
@@ -142,12 +144,10 @@ def ejudge_dump_report(contest_id, run_id):
 
 
 def answer_msg(answer):
-    exclamation = ''
-    if answer['success']:
-        exclamation = 'Good Job!'
+    if 'error' not in answer:
+        message = result_test_table(answer['tests'])
     else:
-        exclamation = 'Incorrect unswer!'
-    table = result_test_table(answer['tests'])
+        message = answer['error']
     button = '''<button id="answer_grader">Результат</button>'''
     css = '''<style type="text/css">
     #modal_form {
@@ -194,7 +194,7 @@ def answer_msg(answer):
 </style>'''
     modal = '''<div id="modal_form">
       <span id="modal_close">X</span>
-      <h3>Результат проверки задания</h3>''' + table + '''
+      <h3>Результат проверки задания</h3>''' + message + '''
 </div>
 <div id="overlay"></div><!-- Пoдлoжкa -->'''
     script = '''<script type="text/javascript">
@@ -223,8 +223,6 @@ def answer_msg(answer):
 });
 </script>'''
     ans = button + modal + css + script
-    if 'error' in answer:
-        return answer['error']
     return ans
 
 
@@ -243,7 +241,6 @@ def result_test_table(tests):
 
 
 def validate_payload(grader_payload):
-    import voluptuous as vol
     schem = vol.Schema({
         'course_name': vol.All(str, vol.Length(min=2, max=50)),
         'problem_type': 'standart',
@@ -255,7 +252,7 @@ def validate_payload(grader_payload):
     try:
         schem(grader_payload)
     except vol.er.MultipleInvalid, err:
-        raise e.ValidationError(str(err)[str(err).find('@'):])
+        raise e.ValidationError(str(err)[str(err).find('@')+2:])
     contest_name = grader_payload['course_name']
     problem_name = grader_payload['problem_name']
     lang_name = grader_payload['lang_short_name']
@@ -275,4 +272,5 @@ def validate_payload(grader_payload):
     if re.search(cyrilic, problem_name) is not None and re.search(metasymbol,
                                                                   problem_name) is not None:
         raise e.ValidationError('problem_name')
+    return True
 
