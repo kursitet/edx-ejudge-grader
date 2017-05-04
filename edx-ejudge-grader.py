@@ -6,6 +6,7 @@ import logging
 import time
 import urllib2
 import urlparse
+import sys
 
 import edx_util as edx
 import error as e
@@ -15,6 +16,15 @@ import xqueue_util as util
 from ejudge_grade import grader
 
 log = logging.getLogger(__name__)
+formatter = u'%(levelname)-8s [%(asctime)s] %(message)s'
+ch = logging.StreamHandler(sys.stdout)
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
+fh = logging.handlers.RotatingFileHandler('./log/log.log', maxBytes=(1048576*5), backupCount=7)
+fh.setFormatter(formatter)
+log.addHandler(fh)
+logging.basicConfig(format=formatter, level=logging.INFO)
 
 QUEUE_NAME = settings.QUEUE_NAME
 
@@ -28,7 +38,10 @@ def each_cycle():
         logging.info(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
-            answer = grade(content)
+            try:
+                answer = grade(content)
+            except e.GraderException, err:
+                answer = edx.answer_after_error(err)
             content_header = json.loads(content['xqueue_header'])
             content_body = json.loads(content['xqueue_body'])
             xqueue_header, xqueue_body = util.create_xqueue_header_and_body(
@@ -59,7 +72,11 @@ def grade(content):
     except (e.ValidationError, e.EmptyPayload), err:
         logging.warning(err.msg)
         return edx.answer_after_error(err)
-    answer = grader(resp, grader_payload)
+    try:
+        answer = grader(resp, grader_payload)
+    except BaseException, err:
+        logging.exception(err)
+        raise e.GraderException
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
         response = urllib2.urlopen(fileurl)
@@ -108,8 +125,6 @@ def get_queue_length(queue_name, xqueue_session):
 
 
 try:
-    logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
-                        level=logging.DEBUG)
     while True:
         each_cycle()
         time.sleep(2)

@@ -1,6 +1,6 @@
-class GraderException(Exception):
+class GraderException(Exception, BaseException):
     def __init__(self):
-        pass
+        self.msg = "Unknow error. Please try again latter."
 
 
 class ValidationError(Exception):
