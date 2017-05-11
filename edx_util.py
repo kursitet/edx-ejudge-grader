@@ -4,7 +4,7 @@ import re
 import voluptuous as vol
 
 import error as e
-from ejudge_util import get_lang_id
+from ejudge_util import lang_id_get
 
 
 def answer_msg(answer):
@@ -125,7 +125,7 @@ def validate_payload(grader_payload):
     for key in grader_payload:
         if len(grader_payload[key]) == 0:
             raise e.EmptyPayload(key)
-    if not get_lang_id(lang_name):
+    if not lang_id_get(lang_name):
         raise e.ValidationError('lang_short_name')
     if len(test_data) != len(answer_data):
         raise e.ValidationError('in\output_data')

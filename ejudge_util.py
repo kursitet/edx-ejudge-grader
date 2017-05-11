@@ -8,7 +8,7 @@ import subprocess
 import xml.etree.ElementTree as etree
 
 
-def create_task(grader_payload):
+def task_create(grader_payload):
     contest_name = grader_payload['course_name']
     problem_name = grader_payload['problem_name']
     problem_type = grader_payload['problem_type']
@@ -16,32 +16,33 @@ def create_task(grader_payload):
     test_data = grader_payload['input_data']
     answer_data = grader_payload['output_data']
 
-    contest_id = get_contest_id(contest_name)
+    contest_id = contest_id_get(contest_name)
     if not contest_id:
-        contest_id = create_contest_id(contest_name)
-        create_contest_xml(contest_name, contest_id)
-        contest_path = create_dir_structure(contest_id)
-        create_serve_cfg(contest_path, lang_name, problem_name, problem_type)
-        create_problem_dir(problem_name, contest_path)
-        create_test_answer_data(problem_name, contest_path, test_data,
+        contest_id = contest_id_create(contest_name)
+        contest_xml_create(contest_name, contest_id)
+        contest_path = dir_structure_create(contest_id)
+        serve_cfg_create(contest_path, lang_name, problem_name, problem_type)
+        problem_dir_create(problem_name, contest_path)
+        test_answer_data_create(problem_name, contest_path, test_data,
                                 answer_data)
-        update_session_file(contest_id)
+        session_file_update(contest_id)
         logging.info('Contest files create!')
     elif not problem_exist(contest_id, problem_name):
-        create_problem(problem_name, problem_type, contest_id, test_data,
+        problem_create(problem_name, problem_type, contest_id, lang_name,
+                       test_data,
                        answer_data)
         logging.info('Problem create')
-    save_grader_payload(grader_payload, get_contest_path(contest_id),
+    grader_payload_save(grader_payload, contest_path_get(contest_id),
                         problem_name)
 
 
-def get_contest_id(contest_name):
+def contest_id_get(contest_name):
     try:
         file = open('./contest_name_to_id.json', 'r')
     except IOError:
         logging.warning('Not found file: contest_name_to_id.json')
         logging.info("create json contest name to id")
-        create_contest_name_id_json()
+        contest_name_id_json_create()
     contest_table = json.load(file)
     file.close()
     if contest_name in contest_table:
@@ -50,7 +51,7 @@ def get_contest_id(contest_name):
         return False
 
 
-def create_contest_id(contest_name):
+def contest_id_create(contest_name):
     file = open('./contest_name_to_id.json', 'r')
     contest_table = json.load(file)
     file.close()
@@ -61,7 +62,7 @@ def create_contest_id(contest_name):
     return contest_table[contest_name]
 
 
-def create_contest_xml(contest_name, contest_id):
+def contest_xml_create(contest_name, contest_id):
     name_xml = (6 - len(contest_id)) * '0' + str(contest_id) + '.xml'
     root = etree.Element('contest', attrib={'id': contest_id,
                                             'disable_team_password': 'yes',
@@ -122,7 +123,31 @@ def create_contest_xml(contest_name, contest_id):
     tree.write('/home/judges/data/contests/' + name_xml)
 
 
-def create_dir_structure(contest_id):
+def contest_name_id_json_create():
+    if os.path.exists('./contest_name_to_id.json'):
+        return True
+    path = '/home/judges/data/contests/'
+    list_files = os.listdir(path)
+    name_to_id = dict()
+    for item in list_files:
+        if item.endswith('.xml'):
+            xml = etree.parse(path + item)
+            root = xml.getroot()
+            contest_id = root.attrib['id']
+            name = root.find('name_en').text
+            if id == 'auto':
+                contest_id = item.replace('0', ' ').strip()
+            name_to_id[name] = str(contest_id)
+    json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
+
+
+def contest_path_get(contest_id):
+    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
+    contest_path = '/home/judges/' + name_dir_contest
+    return contest_path
+
+
+def dir_structure_create(contest_id):
     name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
     contest_path = '/home/judges/' + name_dir_contest
     os.makedirs(contest_path)
@@ -133,7 +158,7 @@ def create_dir_structure(contest_id):
     return contest_path
 
 
-def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
+def serve_cfg_create(contest_path, lang_name, problem_name, problem_type):
     serve = open(contest_path + 'conf/serve.cfg', 'w')
     global_param = ['# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
                     'score_system = acm',
@@ -142,15 +167,16 @@ def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
                     'ignore_compile_errors',
                     'problem_navigation',
                     'rounding_mode = floor',
-                    'cr_serialization_key = ' + str(random.randint(10000, 99999)),
+                    'cr_serialization_key = ' + str(
+                        random.randint(10000, 99999)),
                     'enable_runlog_merge',
                     'advanced_layout',
                     'enable_l10n',
                     'team_download_time = 0',
                     'cpu_bogomips = 4533']
-    lang_param = get_lang_param(lang_name)
-    problem_param = get_problem_param(problem_name, problem_type)
-    tester_param = get_tester_param()
+    lang_param = lang_param_get(lang_name)
+    problem_param = problem_param_get(problem_name, problem_type)
+    tester_param = tester_param_get()
     all_param = global_param
     all_param.extend(lang_param)
     all_param.extend(problem_param)
@@ -160,24 +186,7 @@ def create_serve_cfg(contest_path, lang_name, problem_name, problem_type):
     serve.close()
 
 
-def get_lang_param(lang_short_name):
-    lang_id = get_lang_id(lang_short_name)
-    param = ['\n[language]']
-    file = open('./programm_lang/' + lang_id, 'r')
-    param.extend(list(file))
-    return param
-
-
-def get_lang_id(lang_short_name):
-    file = open('./lang_short_to_id.csv', 'r')
-    lang_list = csv.DictReader(file, delimiter=';', skipinitialspace=True)
-    for lang in lang_list:
-        if lang['name'] == lang_short_name:
-            return lang['id']
-    return False
-
-
-def get_problem_param(problem_name, problem_type):
+def problem_param_get(problem_name, problem_type):
     param = [
         '[problem]',
         'short_name = ' + '"' + problem_name + '"',
@@ -218,38 +227,10 @@ def get_problem_param(problem_name, problem_type):
     return param
 
 
-def get_tester_param():
-    param = ['\n[tester]',
-             'any',
-             'no_core_dump',
-             'kill_signal = KILL',
-             'memory_limit_type = "default"',
-             'secure_exec_type = "static"',
-             'clear_env',
-             'start_env = "PATH=/usr/local/bin:/usr/bin:/bin"',
-             'start_env = "HOME"',
-             'check_dir = "TWD"',
-             ]
-    return param
-
-
-def create_problem_dir(problem_name, contest_path):
+def problem_dir_create(problem_name, contest_path):
     problem_path = contest_path + 'problems/' + problem_name + '/'
     os.makedirs(problem_path)
     os.makedirs(problem_path + 'tests')
-
-
-def create_test_answer_data(problem_name, contest_path, test_data, answer_data):
-    test_path = contest_path + 'problems/' + problem_name + '/' + 'tests/'
-    num_test = 1
-    for i in range(0, len(test_data)):
-        file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
-        file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
-        file_dat.write(test_data[i])
-        file_ans.write(answer_data[i])
-        file_dat.close()
-        file_ans.close()
-        num_test += 1
 
 
 def problem_exist(contest_id, problem_name):
@@ -264,23 +245,18 @@ def problem_exist(contest_id, problem_name):
     return False
 
 
-def get_contest_path(contest_id):
-    name_dir_contest = (6 - len(contest_id)) * '0' + str(contest_id) + '/'
-    contest_path = '/home/judges/' + name_dir_contest
-    return contest_path
-
-
-def create_problem(problem_name, problem_type, contest_id, test_data,
+def problem_create(problem_name, problem_type, contest_id, lang_name, test_data,
                    answer_data):
-    contest_path = get_contest_path(contest_id)
-    create_problem_dir(problem_name, contest_path)
-    create_test_answer_data(problem_name, contest_path, test_data, answer_data)
+    contest_path = contest_path_get(contest_id)
+    problem_dir_create(problem_name, contest_path)
+    test_answer_data_create(problem_name, contest_path, test_data, answer_data)
     problem_add_in_serve(contest_path, problem_name, problem_type)
-    create_makefile(contest_path, problem_name)
+    lang_add_in_serve(lang_name, contest_path)
+    makefile_create(contest_path, problem_name)
 
 
 def problem_add_in_serve(contest_path, problem_name, problem_type):
-    problem_param = get_problem_param(problem_name, problem_type)
+    problem_param = problem_param_get(problem_name, problem_type)
     serve_path = contest_path + 'conf/serve.cfg'
     with open(serve_path, 'a') as f:
         f.write('\n')
@@ -288,19 +264,101 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
             f.write(row + '\n')
 
 
-def save_grader_payload(grader_payload, contest_path, problem_name):
+def lang_param_get(lang_short_name):
+    lang_id = lang_id_get(lang_short_name)
+    param = ['\n[language]']
+    file = open('./programm_lang/' + lang_id, 'r')
+    param.extend(list(file))
+    return param
+
+
+def lang_id_get(lang_short_name):
+    file = open('./lang_short_to_id.csv', 'r')
+    lang_list = csv.DictReader(file, delimiter=';', skipinitialspace=True)
+    for lang in lang_list:
+        if lang['name'] == lang_short_name:
+            return lang['id']
+    return False
+
+
+def lang_del_in_serve(lang_short_name, contest_path):
+    serve = open(contest_path + '/conf/serve.cfg', 'r')
+    lang_id = lang_id_get(lang_short_name)
+    param = serve.readlines()
+    index = 0
+    flag = False
+    while not flag:
+        try:
+            lang = param.index('[language]\n', index)
+        except ValueError:
+            flag = True
+            break
+        if param[lang + 1].endswith(str(lang_id) + '\n'):
+            param.pop(lang)
+            while param[lang] != '\n' and not param[lang].startswith('['):
+                param.pop(lang)
+        else:
+            index = lang + 1
+    serve.close()
+    serve = open(contest_path + '/conf/serve.cfg', 'w')
+    for row in param:
+        serve.write(row)
+    serve.close()
+
+
+def lang_add_in_serve(lang_short_name, contest_path):
+    serve = open(contest_path + '/conf/serve.cfg', 'a')
+    lang_param = lang_param_get(lang_short_name)
+    for row in lang_param:
+        serve.write(row)
+    serve.close()
+
+
+def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
+    test_path = contest_path + 'problems/' + problem_name + '/' + 'tests/'
+    num_test = 1
+    for i in range(0, len(test_data)):
+        file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
+        file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
+        file_dat.write(test_data[i])
+        file_ans.write(answer_data[i])
+        file_dat.close()
+        file_ans.close()
+        num_test += 1
+
+
+def tester_param_get():
+    param = ['\n[tester]',
+             'any',
+             'no_core_dump',
+             'kill_signal = KILL',
+             'memory_limit_type = "default"',
+             'secure_exec_type = "static"',
+             'clear_env',
+             'start_env = "PATH=/usr/local/bin:/usr/bin:/bin"',
+             'start_env = "HOME"',
+             'check_dir = "TWD"',
+             ]
+    return param
+
+
+def grader_payload_save(grader_payload, contest_path, problem_name):
     file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_payload.json'
     json.dump(grader_payload, open(file_payload, 'w'))
 
 
-def check_grader_payload(new_payload, contest_path, problem_name):
+def grader_payload_check(new_payload, contest_path, problem_name):
     file_payload = contest_path + 'problems/' + problem_name + '/' + 'grader_payload.json'
     payload = json.load(open(file_payload, 'r'))
     old_test = payload['input_data']
     old_answer = payload['output_data']
     new_test = new_payload['input_data']
     new_answer = new_payload['output_data']
+    old_lang = payload['lang_short_name']
+    new_lang = new_payload['lang_short_name']
     change_list = list()
+    if old_lang != new_lang:
+        change_list.append('lang_short_name')
     if old_test != new_test:
         change_list.append('input_data')
     if old_answer != new_answer:
@@ -309,37 +367,25 @@ def check_grader_payload(new_payload, contest_path, problem_name):
     return change_list
 
 
-def update_payload(change_list, grader_payload):
-    contest_id = get_contest_id(grader_payload['course_name'])
-    contest_path = get_contest_path(contest_id)
+def grader_payload_update(change_list, grader_payload):
+    contest_id = contest_id_get(grader_payload['course_name'])
+    contest_path = contest_path_get(contest_id)
+    lang = grader_payload['lang_short_name']
     problem_name = grader_payload['problem_name']
     test_data = grader_payload['input_data']
     answer_data = grader_payload['output_data']
-    create_test_answer_data(problem_name, contest_path, test_data, answer_data)
-    save_grader_payload(grader_payload, contest_path, problem_name)
+    if 'input_data' in change_list or 'output_data' in change_list:
+        test_answer_data_create(problem_name, contest_path, test_data,
+                                answer_data)
+    if 'lang_short_name' in change_list:
+        lang_del_in_serve(lang, contest_path)
+        lang_add_in_serve(lang, contest_path)
+    grader_payload_save(grader_payload, contest_path, problem_name)
     logging.info('Test and answer data update')
 
 
-def create_contest_name_id_json():
-    if os.path.exists('./contest_name_to_id.json'):
-        return True
-    path = '/home/judges/data/contests/'
-    list_files = os.listdir(path)
-    name_to_id = dict()
-    for item in list_files:
-        if item.endswith('.xml'):
-            xml = etree.parse(path + item)
-            root = xml.getroot()
-            contest_id = root.attrib['id']
-            name = root.find('name_en').text
-            if id == 'auto':
-                contest_id = item.replace('0', ' ').strip()
-            name_to_id[name] = str(contest_id)
-    json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
-
-
-def update_session_file(contest_id):
-    session_file_name = get_session_file_name(contest_id)
+def session_file_update(contest_id):
+    session_file_name = session_file_name_get(contest_id)
     command = '/opt/ejudge/bin/ejudge-contests-cmd ' + contest_id + ' master-login ' + session_file_name
     file_login = open('login', 'r')
     login = file_login.readline().strip()
@@ -349,20 +395,20 @@ def update_session_file(contest_id):
     logging.info("session file updated")
 
 
-def get_session_file_name(contest_id):
+def session_file_name_get(contest_id):
     name = '/home/ejudge/sessions/' + contest_id + '.pwd'
     return name
 
 
-def get_session_key(contest_id):
-    name = get_session_file_name(contest_id)
+def session_key_get(contest_id):
+    name = session_file_name_get(contest_id)
     session_file = open(name, 'r')
     key = session_file.read().strip()
     session_file.close()
     return key
 
 
-def create_makefile(contest_path, problem_name):
+def makefile_create(contest_path, problem_name):
     makefile = ['### BEGIN ejudge auto-generated makefile ###',
                 'EJUDGE_PREFIX_DIR ?= /opt/ejudge',
                 'EJUDGE_CONTESTS_HOME_DIR ?= /home/judges',

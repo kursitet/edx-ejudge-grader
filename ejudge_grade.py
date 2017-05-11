@@ -9,19 +9,19 @@ import ejudge_util
 
 
 def grader(response, grader_payload):
-    contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
+    contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
     problem_exist = ejudge_util.problem_exist(contest_id,
                                               grader_payload['problem_name'])
     if not contest_id or not problem_exist:
-        ejudge_util.create_task(grader_payload)
-        contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
-    check_payload = ejudge_util.check_grader_payload(grader_payload,
-                                                     ejudge_util.get_contest_path(
+        ejudge_util.task_create(grader_payload)
+        contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
+    check_payload = ejudge_util.grader_payload_check(grader_payload,
+                                                     ejudge_util.contest_path_get(
                                                          contest_id),
                                                      grader_payload[
                                                          'problem_name'])
     if check_payload:
-        ejudge_util.update_payload(check_payload, grader_payload)
+        ejudge_util.grader_payload_update(check_payload, grader_payload)
     result = run_grade_in_ejudge(response, grader_payload)
     return result
 
@@ -30,12 +30,12 @@ def run_grade_in_ejudge(response, grader_payload):
     response_file = open('response.txt', 'w')
     response_file.write(response.encode('utf-8'))
     response_file.close()
-    contest_id = ejudge_util.get_contest_id(grader_payload['course_name'])
+    contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
     problem_name = grader_payload['problem_name']
     lang = grader_payload['lang_short_name']
     run_id = ejudge_submit_run(contest_id, problem_name, lang)
     if not run_id:
-        ejudge_util.update_session_file(contest_id)
+        ejudge_util.session_file_update(contest_id)
         run_id = ejudge_submit_run(contest_id, problem_name, lang)
     run_id = run_id.strip()
     report = ejudge_dump_report(contest_id, run_id)
@@ -47,7 +47,7 @@ def run_grade_in_ejudge(response, grader_payload):
 
 def pars_report(contest_id, run_id):
     result = dict()
-    contest_path = ejudge_util.get_contest_path(contest_id)
+    contest_path = ejudge_util.contest_path_get(contest_id)
     name_report_file = 'report_' + run_id + '.xml'
     del_str_in_report_xml(contest_path, name_report_file)
     result_xml = etree.parse(contest_path + 'report/' + name_report_file)
@@ -102,7 +102,7 @@ def del_str_in_report_xml(contest_path, name_report):
 
 
 def ejudge_submit_run(contest_id, problem_name, lang):
-    session_key = ejudge_util.get_session_key(contest_id)
+    session_key = ejudge_util.session_key_get(contest_id)
     command = ['/opt/ejudge/bin/ejudge-contests-cmd',
                str(contest_id),
                'submit-run',
@@ -119,9 +119,9 @@ def ejudge_submit_run(contest_id, problem_name, lang):
 
 def ejudge_dump_report(contest_id, run_id):
     name_report_file = 'report_' + run_id + '.xml'
-    contest_path = ejudge_util.get_contest_path(contest_id)
+    contest_path = ejudge_util.contest_path_get(contest_id)
     report_path = contest_path + 'report/' + name_report_file
-    session_key = ejudge_util.get_session_key(contest_id)
+    session_key = ejudge_util.session_key_get(contest_id)
     command = ['/opt/ejudge/bin/ejudge-contests-cmd',
                contest_id,
                'dump-report',
