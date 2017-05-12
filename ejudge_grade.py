@@ -6,6 +6,7 @@ import xml.etree.ElementTree as etree
 from os import devnull
 
 import ejudge_util
+import error as e
 
 
 def grader(response, grader_payload):
@@ -37,6 +38,8 @@ def run_grade_in_ejudge(response, grader_payload):
     if not run_id:
         ejudge_util.session_file_update(contest_id)
         run_id = ejudge_submit_run(contest_id, problem_name, lang)
+    if not run_id:
+        raise e.GraderException
     run_id = run_id.strip()
     report = ejudge_dump_report(contest_id, run_id)
     if not report:

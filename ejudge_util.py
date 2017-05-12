@@ -310,7 +310,7 @@ def lang_add_in_serve(lang_short_name, contest_path):
     serve = open(contest_path + '/conf/serve.cfg', 'a')
     lang_param = lang_param_get(lang_short_name)
     for row in lang_param:
-        serve.write(row)
+        serve.write(row + '\n')
     serve.close()
 
 
@@ -377,11 +377,12 @@ def grader_payload_update(change_list, grader_payload):
     if 'input_data' in change_list or 'output_data' in change_list:
         test_answer_data_create(problem_name, contest_path, test_data,
                                 answer_data)
+        logging.info('Test and answer data update')
     if 'lang_short_name' in change_list:
         lang_del_in_serve(lang, contest_path)
         lang_add_in_serve(lang, contest_path)
+        logging.info('Languages update')
     grader_payload_save(grader_payload, contest_path, problem_name)
-    logging.info('Test and answer data update')
 
 
 def session_file_update(contest_id):
