@@ -7,6 +7,8 @@ import random
 import subprocess
 import xml.etree.ElementTree as etree
 
+logger = logging.getLogger('edx-ejudge-grader')
+
 
 def task_create(grader_payload):
     contest_name = grader_payload['course_name']
@@ -26,12 +28,12 @@ def task_create(grader_payload):
         test_answer_data_create(problem_name, contest_path, test_data,
                                 answer_data)
         session_file_update(contest_id)
-        logging.info('Contest files create!')
+        logger.info('Contest files create!')
     elif not problem_exist(contest_id, problem_name):
         problem_create(problem_name, problem_type, contest_id, lang_name,
                        test_data,
                        answer_data)
-        logging.info('Problem create')
+        logger.info('Problem create')
     grader_payload_save(grader_payload, contest_path_get(contest_id),
                         problem_name)
 
@@ -40,8 +42,8 @@ def contest_id_get(contest_name):
     try:
         file = open('./contest_name_to_id.json', 'r')
     except IOError:
-        logging.warning('Not found file: contest_name_to_id.json')
-        logging.info("create json contest name to id")
+        logger.warning('Not found file: contest_name_to_id.json')
+        logger.info("create json contest name to id")
         contest_name_id_json_create()
     contest_table = json.load(file)
     file.close()
@@ -363,7 +365,7 @@ def grader_payload_check(new_payload, contest_path, problem_name):
         change_list.append('input_data')
     if old_answer != new_answer:
         change_list.append('output_data')
-    logging.info("check grader payload. change list = " + str(change_list))
+    logger.info("check grader payload. change list = " + str(change_list))
     return change_list
 
 
@@ -377,11 +379,11 @@ def grader_payload_update(change_list, grader_payload):
     if 'input_data' in change_list or 'output_data' in change_list:
         test_answer_data_create(problem_name, contest_path, test_data,
                                 answer_data)
-        logging.info('Test and answer data update')
+        logger.info('Test and answer data update')
     if 'lang_short_name' in change_list:
         lang_del_in_serve(lang, contest_path)
         lang_add_in_serve(lang, contest_path)
-        logging.info('Languages update')
+        logger.info('Languages update')
     grader_payload_save(grader_payload, contest_path, problem_name)
 
 
@@ -393,7 +395,7 @@ def session_file_update(contest_id):
     password = file_login.readline()
     command = command + ' ' + login + ' ' + password
     subprocess.call(command, shell=True)
-    logging.info("session file updated")
+    logger.info("session file updated")
 
 
 def session_file_name_get(contest_id):

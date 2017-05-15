@@ -8,6 +8,8 @@ from os import devnull
 import ejudge_util
 import error as e
 
+logger = logging.getLogger('edx-ejudge-grader')
+
 
 def grader(response, grader_payload):
     contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
@@ -87,7 +89,7 @@ def pars_report(contest_id, run_id):
     compiler_out = result_xml.getroot().find("compiler_output").text
     if compiler_out:
         result['compiler_output'] = compiler_out
-    logging.info("Report pars.result=" + str(result))
+    logger.info("Report pars.result=" + str(result))
     return result
 
 
@@ -116,7 +118,7 @@ def ejudge_submit_run(contest_id, problem_name, lang):
                'response.txt']
     submit_run = subprocess.Popen(command, stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
-    logging.info('run id = ' + run_id + ' contest_id = ' + contest_id)
+    logger.info('run id = ' + run_id + ' contest_id = ' + contest_id)
     return run_id
 
 
@@ -140,6 +142,6 @@ def ejudge_dump_report(contest_id, run_id):
     while report_file != 0:
         report_file = subprocess.call(cmd_str, shell=True,
                                       stdout=DEVNULL, stderr=DEVNULL)
-    logging.info('Get report file')
+    logger.info('Get report file')
     return True
 

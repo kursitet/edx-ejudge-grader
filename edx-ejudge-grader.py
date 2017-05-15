@@ -16,16 +16,19 @@ import settings
 import xqueue_util as util
 from ejudge_grade import grader
 
-log = logging.getLogger(__name__)
-formatter = u'%(levelname)-8s [%(asctime)s] %(message)s'
-ch = logging.StreamHandler(sys.stdout)
-ch.setFormatter(formatter)
-log.addHandler(ch)
+logger = logging.getLogger('edx-ejudge-grader')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(levelname)-8s [%(asctime)s] %(filename)s : %(message)s')
 
-fh = logging.handlers.RotatingFileHandler('./log/log.log', maxBytes=(1048576*5), backupCount=7)
+ch = logging.StreamHandler(sys.stderr)
+ch.setFormatter(formatter)
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+fh = logging.handlers.RotatingFileHandler('./log/log.log', maxBytes=(1048576*5), backupCount=7, encoding='utf-8')
 fh.setFormatter(formatter)
-log.addHandler(fh)
-logging.basicConfig(format=formatter, level=logging.INFO)
+fh.setLevel(logging.DEBUG)
+logger.addHandler(fh)
 
 QUEUE_NAME = settings.QUEUE_NAME
 
@@ -36,7 +39,7 @@ def each_cycle():
     success_length, queue_length = get_queue_length(QUEUE_NAME, session)
     if success_length and queue_length > 0:
         success_get, queue_item = get_from_queue(QUEUE_NAME, session)
-        logging.info(queue_item)
+        logger.info(queue_item)
         success_parse, content = util.parse_xobject(queue_item, QUEUE_NAME)
         if success_get and success_parse:
             try:
@@ -54,7 +57,7 @@ def each_cycle():
             (success, msg) = util.post_results_to_xqueue(session, json.dumps(
                 xqueue_header), json.dumps(xqueue_body), )
             if success:
-                logging.info("successfully posted result back to xqueue")
+                logger.info("successfully posted result back to xqueue")
                 print("successfully posted result back to xqueue")
 
 
@@ -71,12 +74,12 @@ def grade(content):
     try:
         edx.validate_payload(grader_payload)
     except (e.ValidationError, e.EmptyPayload), err:
-        logging.warning(err.msg)
+        logger.warning(err.msg)
         return edx.answer_after_error(err)
     try:
         answer = grader(resp, grader_payload)
     except BaseException, err:
-        logging.exception(err)
+        logger.exception(err)
         raise e.GraderException
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
@@ -119,7 +122,7 @@ def get_queue_length(queue_name, xqueue_session):
             return False, "Invalid return code in reply"
 
     except Exception as e:
-        log.critical("Unable to get queue length: {0}".format(e))
+        logger.critical("Unable to get queue length: {0}".format(e))
         return False, "Unable to get queue length."
 
     return True, response
