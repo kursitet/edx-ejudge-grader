@@ -3,11 +3,21 @@ EDX-ejudge-grader
 
 Серверное приложение для проверки решений студентов из системы EDX в ejudge.
 
-Использование:
-======
-Перед использованием необходимо создать сессионный файл ejudge командой:
+Перед началом:
+=========
+- Должен быть установлен ejudge >= 3.6.0 (https://ejudge.ru/)
+- В Ejudge используется альтернативная раскладка файлов (https://goo.gl/JSEOYe)
+- Создать файл login в корне проекта. Первая строка - имя пользователя, вторая - пароль
 
-/opt/ejudge/bin/ejudge-contests-cmd 2 master-login /home/ejudge/session.pwd login password
+Установка
+===========
+``` git clone https://github.com/madker4/edx-ejudge-grader.git```
+Установка зависимостей
+```pip install -r ./requirements.txt ```
 
 Запуск:
+=========
+
+``` bash
 python edx-ejudge-grader.py
+```
