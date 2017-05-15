@@ -12,7 +12,8 @@ EDX-ejudge-grader
 Установка
 ===========
 ``` git clone https://github.com/madker4/edx-ejudge-grader.git```
-Установка зависимостей
+
+Установка зависимостей:
 ```pip install -r ./requirements.txt ```
 
 Запуск:
