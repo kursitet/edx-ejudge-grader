@@ -1,5 +1,6 @@
 # coding=utf8
 
+import time
 import logging
 import subprocess
 import xml.etree.ElementTree as etree
@@ -41,7 +42,7 @@ def run_grade_in_ejudge(response, grader_payload):
         ejudge_util.session_file_update(contest_id)
         run_id = ejudge_submit_run(contest_id, problem_name, lang)
     if not run_id:
-        raise e.GraderException
+        raise e.GraderException("Ejudge didn`t started submit run")
     run_id = run_id.strip()
     report = ejudge_dump_report(contest_id, run_id)
     if not report:
@@ -56,7 +57,10 @@ def pars_report(contest_id, run_id):
     name_report_file = 'report_' + run_id + '.xml'
     del_str_in_report_xml(contest_path, name_report_file)
     result_xml = etree.parse(contest_path + 'report/' + name_report_file)
-    test_tag = result_xml.getroot().find("tests").findall("test")
+    tests = result_xml.getroot().find("tests")
+    if type(tests) in None:
+        raise e.GraderException("Not exist test in report file")
+    test_tag = tests.findall("test")
     test_ok = 0
     tests = {}
     if not test_tag:
@@ -139,9 +143,13 @@ def ejudge_dump_report(contest_id, run_id):
         cmd_str += arg + ' '
     report_file = 1
     DEVNULL = open(devnull, 'wb')
+    start = time.time()
     while report_file != 0:
         report_file = subprocess.call(cmd_str, shell=True,
                                       stdout=DEVNULL, stderr=DEVNULL)
+        finish = time.time()
+        if (finish - start) > 15:
+            raise e.GraderException("Not generate report file")
     logger.info('Get report file')
     return True
 

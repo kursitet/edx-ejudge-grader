@@ -8,6 +8,7 @@ import time
 import urllib2
 import urlparse
 import sys
+import requests
 
 import edx_util as edx
 import error as e
@@ -35,7 +36,11 @@ QUEUE_NAME = settings.QUEUE_NAME
 
 def each_cycle():
     print('[*]Logging in to xqueue')
-    session = util.xqueue_login()
+    try:
+        session = util.xqueue_login()
+    except requests.HTTPError:
+        logger.error('EDX server is not responding')
+        return None
     success_length, queue_length = get_queue_length(QUEUE_NAME, session)
     if success_length and queue_length > 0:
         success_get, queue_item = get_from_queue(QUEUE_NAME, session)
@@ -70,7 +75,6 @@ def grade(content):
     except SyntaxError, err:
         return edx.answer_after_error(err)
     resp = body.get('student_response', '')
-    print "grader payload = ", grader_payload
     try:
         edx.validate_payload(grader_payload)
     except (e.ValidationError, e.EmptyPayload), err:
