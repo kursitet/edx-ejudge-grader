@@ -117,8 +117,10 @@ def contest_xml_create(contest_name, contest_id):
                            attrib={'allow': 'yes', 'ssl': 'no'})
     ip2.text = '172.18.1.24'
     caps = etree.SubElement(root, 'caps')
-    cap = etree.SubElement(caps, 'cap', attrib={'login': 'nimere'})
-    cap.text = 'MASTER_SET,'
+    file_login = open('login', 'r')
+    login = file_login.readline().strip()
+    cap = etree.SubElement(caps, 'cap', attrib={'login': login})
+    cap.text = 'FULL_SET,'
     etree.SubElement(root, 'contestants',
                      attrib={'min': '1', 'max': '1', 'initial': '1'})
     tree = etree.ElementTree(root)
