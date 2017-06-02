@@ -6,3 +6,4 @@ pyparsing==2.2.0
 requests==2.13.0
 six==1.10.0
 voluptuous==0.10.5
+jinja2==2.7.2
