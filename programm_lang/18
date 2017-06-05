@@ -1,3 +1,4 @@
+[language]
 id = 18
 short_name = "javac"
 long_name = "Java JDK 1.8.0_121"

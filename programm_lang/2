@@ -1,3 +1,4 @@
+[language]
 id = 2
 short_name = "gcc"
 long_name = "GNU C 5.4.0"

@@ -1,0 +1,36 @@
+[problem]
+short_name = "{{problem_name}}"
+long_name = ""
+scoring_checker = 0
+interactive_valuer = 0
+manual_checking = 0
+check_presentation = 0
+use_stdin
+combined_stdin = 0
+use_stdout
+combined_stdout = 0
+binary_input = 0
+ignore_exit_code = 0
+time_limit = 5
+real_time_limit = 15
+test_sfx = ".dat"
+test_pat = ""
+use_corr
+corr_sfx = ".ans"
+corr_pat = ""
+use_info = 0
+info_sfx = ""
+info_pat = ""
+use_tgz = 0
+tgz_sfx = ""
+tgz_pat = ""
+tgzdir_sfx = ""
+tgzdir_pat = ""
+standard_checker = "cmp_int_seq"
+disable_auto_testing = 0
+disable_testing = 0
+enable_compilation = 0
+valuer_sets_marked = 0
+disable_stderr = 0
+normalization = "nl"
+

@@ -6,6 +6,7 @@ import os
 import random
 import subprocess
 import xml.etree.ElementTree as etree
+from jinja2 import FileSystemLoader, Environment
 
 logger = logging.getLogger('edx-ejudge-grader')
 
@@ -164,70 +165,30 @@ def dir_structure_create(contest_id):
 
 def serve_cfg_create(contest_path, lang_name, problem_name, problem_type):
     serve = open(contest_path + 'conf/serve.cfg', 'w')
-    global_param = ['# -*- coding: utf-8 -*-', '# $Id$', 'contest_time = 0',
-                    'score_system = acm',
-                    'compile_dir = "../../compile/var/compile"',
-                    'team_enable_rep_view',
-                    'ignore_compile_errors',
-                    'problem_navigation',
-                    'rounding_mode = floor',
-                    'cr_serialization_key = ' + str(
-                        random.randint(10000, 99999)),
-                    'enable_runlog_merge',
-                    'advanced_layout',
-                    'enable_l10n',
-                    'team_download_time = 0',
-                    'cpu_bogomips = 4533']
+    loader = FileSystemLoader('./template')
+    env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template('serve_basic')
+    basic_param = template.render(random=str(random.randint(10000, 99999)))
+
     lang_param = lang_param_get(lang_name)
     problem_param = problem_param_get(problem_name, problem_type)
     tester_param = tester_param_get()
-    all_param = global_param
-    all_param.extend(lang_param)
-    all_param.extend(problem_param)
-    all_param.extend(tester_param)
-    for row in all_param:
-        serve.write(row + '\n')
+    all_param = basic_param
+    all_param += '\n'
+    all_param += lang_param
+    all_param += '\n'
+    all_param += problem_param
+    all_param += '\n'
+    all_param += tester_param
+    serve.write(all_param)
     serve.close()
 
 
 def problem_param_get(problem_name, problem_type):
-    param = [
-        '[problem]',
-        'short_name = ' + '"' + problem_name + '"',
-        'long_name = ""',
-        'scoring_checker = 0',
-        'interactive_valuer = 0',
-        'manual_checking = 0',
-        'check_presentation = 0',
-        'use_stdin',
-        'combined_stdin = 0',
-        'use_stdout',
-        'combined_stdout = 0',
-        'binary_input = 0',
-        'ignore_exit_code = 0',
-        'time_limit = 5',
-        'real_time_limit = 15',
-        'test_sfx = ".dat"',
-        'test_pat = ""',
-        'use_corr',
-        'corr_sfx = ".ans"',
-        'corr_pat = ""',
-        'use_info = 0',
-        'info_sfx = ""',
-        'info_pat = ""',
-        'use_tgz = 0',
-        'tgz_sfx = ""',
-        'tgz_pat = ""',
-        'tgzdir_sfx = ""',
-        'tgzdir_pat = ""',
-        'standard_checker = "cmp_int_seq"',
-        'disable_auto_testing = 0',
-        'disable_testing = 0',
-        'enable_compilation = 0',
-        'valuer_sets_marked = 0',
-        'disable_stderr = 0',
-        'normalization = "nl"'
-    ]
+    loader = FileSystemLoader('./template')
+    env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template('serve_problem')
+    param = template.render(problem_name=problem_name)
     return param
 
 
@@ -264,15 +225,15 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
     serve_path = contest_path + 'conf/serve.cfg'
     with open(serve_path, 'a') as f:
         f.write('\n')
-        for row in problem_param:
-            f.write(row + '\n')
+        f.write(problem_param)
 
 
 def lang_param_get(lang_short_name):
     lang_id = lang_id_get(lang_short_name)
-    param = ['\n[language]']
-    file = open('./programm_lang/' + lang_id, 'r')
-    param.extend(list(file))
+    loader = FileSystemLoader('./programm_lang')
+    env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template(lang_id)
+    param = template.render()
     return param
 
 
@@ -311,11 +272,11 @@ def lang_del_in_serve(lang_short_name, contest_path):
 
 
 def lang_add_in_serve(lang_short_name, contest_path):
-    serve = open(contest_path + '/conf/serve.cfg', 'a')
     lang_param = lang_param_get(lang_short_name)
-    for row in lang_param:
-        serve.write(row + '\n')
-    serve.close()
+    serve_path = contest_path + 'conf/serve.cfg'
+    with open(serve_path, 'a') as f:
+        f.write('\n')
+        f.write(lang_param)
 
 
 def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
@@ -332,17 +293,10 @@ def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
 
 
 def tester_param_get():
-    param = ['\n[tester]',
-             'any',
-             'no_core_dump',
-             'kill_signal = KILL',
-             'memory_limit_type = "default"',
-             'secure_exec_type = "static"',
-             'clear_env',
-             'start_env = "PATH=/usr/local/bin:/usr/bin:/bin"',
-             'start_env = "HOME"',
-             'check_dir = "TWD"',
-             ]
+    loader = FileSystemLoader('./template')
+    env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template('serve_tester')
+    param = template.render()
     return param
 
 
@@ -414,24 +368,10 @@ def session_key_get(contest_id):
 
 
 def makefile_create(contest_path, problem_name):
-    makefile = ['### BEGIN ejudge auto-generated makefile ###',
-                'EJUDGE_PREFIX_DIR ?= /opt/ejudge',
-                'EJUDGE_CONTESTS_HOME_DIR ?= /home/judges',
-                'EJUDGE_SERVER_BIN_PATH ?= /opt/ejudge/libexec/ejudge/bin',
-                'EXECUTE = ${EJUDGE_PREFIX_DIR}/bin/ejudge-execute',
-                'EXECUTE_FLAGS =  --use-stdin --use-stdout --test-pattern=%03d.dat --corr-pattern=%03d.ans',
-                'NORMALIZE = ${EJUDGE_SERVER_BIN_PATH}/ej-normalize',
-                'NORMALIZE_FLAGS = --workdir=tests --test-pattern=%03d.dat --corr-pattern=%03d.ans --type=nl',
-                'all :',
-                'check_settings : all normalize',
-                'normalize :',
-                '	${NORMALIZE} ${NORMALIZE_FLAGS} --all-tests',
-                'clean :',
-                '	-rm -f *.o *.class *.exe *~ *.bak',
-                '### END ejudge auto-generated makefile ###'
-                ]
+    loader = FileSystemLoader('./template')
+    env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template('makefile')
+    makefile = template.render()
     name = contest_path + 'problems/' + problem_name + '/Makefile'
-    file = open(name, 'w')
-    for row in makefile:
-        file.write(row)
-    file.close()
+    with open(name, 'a') as f:
+        f.write(makefile)

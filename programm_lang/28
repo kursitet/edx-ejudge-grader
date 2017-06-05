@@ -1,3 +1,4 @@
+[language]
 id = 28
 short_name = "gcc-vg"
 long_name = "GNU C (valgrind) 5.4.0"

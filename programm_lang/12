@@ -1,3 +1,4 @@
+[language]
 id = 12
 short_name = "mzscheme"
 long_name = "MzScheme 6.3"

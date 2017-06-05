@@ -1,3 +1,4 @@
+[language]
 id = 53
 short_name = "gccgo"
 long_name = "GNU go 6.0.0"

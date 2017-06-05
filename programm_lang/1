@@ -1,3 +1,4 @@
+[language]
 id = 1
 short_name = "fpc"
 long_name = "Free Pascal 3.0.0+dfsg-2"

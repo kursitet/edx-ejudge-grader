@@ -1,3 +1,4 @@
+[language]
 id = 63
 short_name = "pypy"
 long_name = "Python (PyPy) 2.7.10"

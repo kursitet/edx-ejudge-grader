@@ -1,3 +1,4 @@
+[language]
 id = 19
 short_name = "mcs"
 long_name = "Mono C# 4.2.1.0"

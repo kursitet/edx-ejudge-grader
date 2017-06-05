@@ -1,0 +1,11 @@
+[tester]
+any
+no_core_dump
+kill_signal = KILL
+memory_limit_type = "default"
+secure_exec_type = "static"
+clear_env
+start_env = "PATH=/usr/local/bin:/usr/bin:/bin"
+start_env = "HOME"
+check_dir = "TWD"
+

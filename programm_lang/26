@@ -1,3 +1,4 @@
+[language]
 id = 26
 short_name = "ghc"
 long_name = "The Glasgow Haskell Compiler 7.10.3"

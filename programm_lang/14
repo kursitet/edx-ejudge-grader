@@ -1,3 +1,4 @@
+[language]
 id = 14
 short_name = "perl"
 long_name = "Perl 5.22.1"

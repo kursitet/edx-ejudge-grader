@@ -1,3 +1,4 @@
+[language]
 id = 54
 short_name = "make-vg"
 long_name = "Make (valgrind) 4.1"

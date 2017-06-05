@@ -1,3 +1,4 @@
+[language]
 id = 51
 short_name = "clang"
 long_name = "clang C 3.8.0-2ubuntu4"
