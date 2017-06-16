@@ -76,8 +76,8 @@ def grade(content):
         return edx.answer_after_error(err)
     resp = body.get('student_response', '')
     try:
-        edx.validate_payload(grader_payload)
-    except (e.ValidationError, e.EmptyPayload), err:
+        edx.validate_payload(grader_payload, resp)
+    except (e.ValidationError, e.EmptyPayload, e.ProhibitedOperatorsError), err:
         logger.warning(err.msg)
         return edx.answer_after_error(err)
     try:

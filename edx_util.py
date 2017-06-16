@@ -15,7 +15,7 @@ def answer_msg(answer):
     return popup.encode('utf-8')
 
 
-def validate_payload(grader_payload):
+def validate_payload(grader_payload, resp):
     schem = vol.Schema({
         'course_name': vol.All(str, vol.Length(min=2, max=50)),
         'problem_type': 'standart',
@@ -23,6 +23,7 @@ def validate_payload(grader_payload):
         'lang_short_name': str,
         'input_data': vol.All(list, vol.Length(min=1, max=15)),
         'output_data': vol.All(list, vol.Length(min=1, max=15)),
+        'prohibited_operators': list,
     }, extra=vol.REMOVE_EXTRA, required=True)
     try:
         schem(grader_payload)
@@ -33,6 +34,7 @@ def validate_payload(grader_payload):
     lang_name = grader_payload['lang_short_name']
     test_data = grader_payload['input_data']
     answer_data = grader_payload['output_data']
+    operators = grader_payload['prohibited_operators']
     cyrilic = re.compile(u'[а-яё]', re.I)
     metasymbol = re.compile(r'[%$#@&<>!]', re.I)
     for key in grader_payload:
@@ -48,6 +50,7 @@ def validate_payload(grader_payload):
     if re.search(cyrilic, problem_name) is not None and re.search(metasymbol,
                                                                   problem_name) is not None:
         raise e.ValidationError('problem_name')
+    check_prohibited_operators(operators, resp)
     return True
 
 
@@ -57,3 +60,13 @@ def answer_after_error(err):
     answer['success'] = None
     answer['score'] = None
     return answer
+
+
+def check_prohibited_operators(operators, student_respose):
+    if not operators:
+        return None
+    command = '|'.join([op.split() for op in operators])
+    regexp = re.compile(command, re.I)
+    result = re.search(regexp, student_respose)
+    if result is not None:
+        raise e.ProhibitedOperatorsError(','.join(operators))

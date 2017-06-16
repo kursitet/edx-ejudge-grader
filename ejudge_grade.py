@@ -59,7 +59,7 @@ def pars_report(contest_id, run_id):
     result_xml = etree.parse(contest_path + 'report/' + name_report_file)
     tests = result_xml.getroot().find("tests")
     if tests is None:
-        raise e.GraderException("Not exist test in report file")
+        raise e.StudentResponseCompilationError
     test_tag = tests.findall("test")
     test_ok = 0
     tests = {}
