@@ -65,7 +65,7 @@ def answer_after_error(err):
 def check_prohibited_operators(operators, student_respose):
     if not operators:
         return None
-    command = '|'.join([op.split() for op in operators])
+    command = '|'.join([op.strip() for op in operators])
     regexp = re.compile(command, re.I)
     result = re.search(regexp, student_respose)
     if result is not None:
