@@ -3,7 +3,8 @@
       <span id="modal_close">X</span>
       <h3>Результат проверки задания</h3>
       {% if 'error' in answer %}
-      {{answer.error}}
+    <br>
+      <p>{{answer.error}}</p>
       {% else %}
       <table border="1" align="center">
             <tr>

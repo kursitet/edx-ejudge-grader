@@ -11,6 +11,11 @@ def answer_msg(answer):
     loader = j2.FileSystemLoader('./template')
     env = j2.Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('answer_popup.html')
+    if 'error' in answer:
+        answer['error'] = answer['error'].decode('utf-8')
+    else:
+        for item in answer['tests'].keys():
+            answer['tests'][item] = answer['tests'][item].decode('utf-8')
     popup = template.render(answer=answer)
     return popup.encode('utf-8')
 

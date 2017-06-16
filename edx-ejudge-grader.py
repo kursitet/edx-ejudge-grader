@@ -82,8 +82,10 @@ def grade(content):
         return edx.answer_after_error(err)
     try:
         answer = grader(resp, grader_payload)
-    except BaseException, err:
+    except (BaseException, e.StudentResponseCompilationError), err:
         logger.exception(err)
+        if isinstance(err, e.StudentResponseCompilationError):
+            raise e.StudentResponseCompilationError
         raise e.GraderException
     files = json.loads(content['xqueue_files'])
     for (filename, fileurl) in files.iteritems():
