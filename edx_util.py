@@ -39,7 +39,6 @@ def validate_payload(grader_payload, resp):
     lang_name = grader_payload['lang_short_name']
     test_data = grader_payload['input_data']
     answer_data = grader_payload['output_data']
-    operators = grader_payload['prohibited_operators']
     cyrilic = re.compile(u'[а-яё]', re.I)
     metasymbol = re.compile(r'[%$#@&<>!]', re.I)
     for key in grader_payload:
@@ -55,7 +54,8 @@ def validate_payload(grader_payload, resp):
     if re.search(cyrilic, problem_name) is not None and re.search(metasymbol,
                                                                   problem_name) is not None:
         raise e.ValidationError('problem_name')
-    check_prohibited_operators(operators, resp)
+    if 'prohibited_operators' in grader_payload :
+        check_prohibited_operators(grader_payload['prohibited_operators'], resp)
     return True
 
 
