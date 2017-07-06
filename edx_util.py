@@ -22,14 +22,14 @@ def answer_msg(answer):
 
 def validate_payload(grader_payload, resp):
     schem = vol.Schema({
-        'course_name': vol.All(str, vol.Length(min=2, max=50)),
-        'problem_type': 'standart',
-        'problem_name': vol.All(str, vol.Length(min=1, max=3)),
-        'lang_short_name': str,
-        'input_data': vol.All(list, vol.Length(min=1, max=15)),
-        'output_data': vol.All(list, vol.Length(min=1, max=15)),
+        vol.Required('course_name'): vol.All(str, vol.Length(min=2, max=50)),
+        vol.Required('problem_type'): 'standart',
+        vol.Required('problem_name'): vol.All(str, vol.Length(min=1, max=3)),
+        vol.Required('lang_short_name'): str,
+        vol.Required('input_data'): vol.All(list, vol.Length(min=1, max=15)),
+        vol.Required('output_data'): vol.All(list, vol.Length(min=1, max=15)),
         'prohibited_operators': list,
-    }, extra=vol.REMOVE_EXTRA, required=True)
+    }, extra=vol.REMOVE_EXTRA)
     try:
         schem(grader_payload)
     except vol.er.MultipleInvalid, err:
