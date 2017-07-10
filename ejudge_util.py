@@ -276,7 +276,7 @@ def lang_add_in_serve(lang_short_name, contest_path):
     serve_path = contest_path + 'conf/serve.cfg'
     serve_file = open(serve_path, 'r')
     serve_param = serve_file.readlines()
-    lang_str = str(lang_param[2])
+    lang_str = lang_param.split('\n')[2] + '\n'
     if lang_str not in serve_param:
         with open(serve_path, 'a') as f:
             f.write('\n')
