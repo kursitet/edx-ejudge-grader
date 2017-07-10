@@ -274,9 +274,13 @@ def lang_del_in_serve(lang_short_name, contest_path):
 def lang_add_in_serve(lang_short_name, contest_path):
     lang_param = lang_param_get(lang_short_name)
     serve_path = contest_path + 'conf/serve.cfg'
-    with open(serve_path, 'a') as f:
-        f.write('\n')
-        f.write(lang_param)
+    serve_file = open(serve_path, 'r')
+    serve_param = serve_file.readlines()
+    lang_str = 'short_name = ' + '"' + lang_short_name + '"'
+    if lang_str not in serve_param:
+        with open(serve_path, 'a') as f:
+            f.write('\n')
+            f.write(lang_param + '\n')
 
 
 def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
