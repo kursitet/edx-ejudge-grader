@@ -14,9 +14,11 @@ def answer_msg(answer):
     if 'error' in answer:
         answer['error'] = answer['error'].decode('utf-8')
     else:
-        for item in answer['tests'].keys():
+        tests = list()
+        for item in sorted(answer['tests'].keys()):
             answer['tests'][item] = answer['tests'][item].decode('utf-8')
-    popup = template.render(answer=answer)
+            tests.append({item: answer['tests'][item].decode('utf-8')})
+    popup = template.render(answer=answer, tests=tests)
     return popup.encode('utf-8')
 
 

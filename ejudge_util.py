@@ -286,9 +286,13 @@ def lang_add_in_serve(lang_short_name, contest_path):
 def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
     test_path = contest_path + 'problems/' + problem_name + '/' + 'tests/'
     num_test = 1
+    old_files = os.listdir(test_path)
+    for old in old_files:
+        os.remove(test_path + old)
     for i in range(0, len(test_data)):
-        file_dat = open(test_path + '00' + str(num_test) + '.dat', 'w')
-        file_ans = open(test_path + '00' + str(num_test) + '.ans', 'w')
+        file_name = '0'*(3-len(str(num_test))) + str(num_test)
+        file_dat = open(test_path + file_name + '.dat', 'w')
+        file_ans = open(test_path + file_name + '.ans', 'w')
         file_dat.write(test_data[i])
         file_ans.write(answer_data[i])
         file_dat.close()
