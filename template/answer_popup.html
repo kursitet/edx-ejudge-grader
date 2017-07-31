@@ -1,17 +1,17 @@
 <button id="answer_grader">Результат</button>
 <div id="modal_form">
       <span id="modal_close">X</span>
-      <h3>Результат проверки задания</h3>
+      <h4>Результат проверки задания</h4>
       {% if 'error' in answer %}
       <p>{{answer.error}}</p>
       {% else %}
-      <table border="1" align="center">
+      <table border="1" rules="all" align="center">
             <tr>
                    <th>Тест</th>
                      <th>Результат</th>
             </tr>
             {% for row in tests %}
-                  <tr><td>{{row}}</td><td>{{tests[row]}}</td></tr>
+                  <tr><td>{{row.number}}</td><td>{{row.value}}</td></tr>
             {% endfor %}
       </table>
 
@@ -64,6 +64,10 @@
 
 <script type="text/javascript">
     $(document).ready(function() { // вся мaгия пoсле зaгрузки стрaницы
+          if {{tests}}.length > 6{
+                var height = 312 + 30*({{tests}}.length - 6);
+                $('#modal_form').css('height', String(height))
+          }
     $('#answer_grader').click( function(event){ // лoвим клик пo ссылки
         event.preventDefault(); // выключaем стaндaртную рoль элементa
         $('.sequence-bottom').css('opacity','0.9');
