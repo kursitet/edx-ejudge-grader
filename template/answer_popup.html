@@ -5,16 +5,20 @@
       {% if 'error' in answer %}
       <p>{{answer.error}}</p>
       {% else %}
-      <table border="1" rules="all" align="center">
+      <div id="container_table_tests">
+      <table border="1" style="margin:auto !important; width: 125px">
             <tr>
-                   <th>Тест</th>
-                     <th>Результат</th>
+                   <th style="text-align: center">Тест</th>
+                     <th style="text-align: center">Результат</th>
             </tr>
             {% for row in tests %}
-                  <tr><td>{{row.number}}</td><td>{{row.value}}</td></tr>
+                  <tr style="border: 1px solid black;">
+                        <td style="border: 1px solid black;text-align: center;">{{row.number}}</td>
+                        <td style="border: 1px solid black;text-align: center;">{{row.value}}</td>
+                  </tr>
             {% endfor %}
       </table>
-
+      </div>
       {% endif %}
 </div>
 <div id="overlay"></div><!-- Пoдлoжкa -->
@@ -60,14 +64,15 @@
     cursor:pointer;
     display:none; /* в oбычнoм сoстoянии её нет) */
 }
+      #container_table_tests {
+            width: 130px;
+            height: 250px;
+            overflow: scroll;
+      }
 </style>
 
 <script type="text/javascript">
     $(document).ready(function() { // вся мaгия пoсле зaгрузки стрaницы
-          if {{tests}}.length > 6{
-                var height = 312 + 30*({{tests}}.length - 6);
-                $('#modal_form').css('height', String(height))
-          }
     $('#answer_grader').click( function(event){ // лoвим клик пo ссылки
         event.preventDefault(); // выключaем стaндaртную рoль элементa
         $('.sequence-bottom').css('opacity','0.9');
