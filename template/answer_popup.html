@@ -8,7 +8,7 @@
       <div id="container_table_tests">
       <table border="1" style="margin:auto !important; width: 125px">
             <tr>
-                   <th style="text-align: center">Тест</th>
+                   <th style="text-align: center;border: 1px solid black">Тест</th>
                      <th style="text-align: center">Результат</th>
             </tr>
             {% for row in tests %}
@@ -65,9 +65,10 @@
     display:none; /* в oбычнoм сoстoянии её нет) */
 }
       #container_table_tests {
-            width: 130px;
-            height: 250px;
+            height: 220px;
             overflow: scroll;
+            margin:auto !important;
+            overflow-x:hidden;
       }
 </style>
 
