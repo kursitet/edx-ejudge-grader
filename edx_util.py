@@ -19,7 +19,7 @@ def answer_msg(answer):
         for item in sorted(answer['tests'].keys()):
             answer['tests'][item] = answer['tests'][item].decode('utf-8')
             tests.append({'number': item,
-                          'value': answer['tests'][item].decode('utf-8')})
+                          'value': answer['tests'][item]})
     popup = template.render(answer=answer, tests=tests)
     return popup.encode('utf-8')
 

@@ -69,7 +69,7 @@ def pars_report(contest_id, run_id):
         return result
     for i in test_tag:
         status = i.attrib['status']
-        num = str(i.attrib['num'])
+        num = int(i.attrib['num'])
         if status == 'OK':
             test_ok += 1
             tests[num] = 'OK'
