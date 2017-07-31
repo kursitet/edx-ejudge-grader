@@ -13,6 +13,7 @@ def answer_msg(answer):
     template = env.get_template('answer_popup.html')
     if 'error' in answer:
         answer['error'] = answer['error'].decode('utf-8')
+        tests = list()
     else:
         tests = list()
         for item in sorted(answer['tests'].keys()):

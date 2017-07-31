@@ -83,6 +83,10 @@ def pars_report(contest_id, run_id):
             tests[num] = 'Частичное решение'
         elif status == 'PE':
             tests[num] = 'Ошибка представления ответа'
+        elif status == 'CF':
+            tests[num] = 'Ошибка тестовых данных'
+        else:
+            tests[num] = status
     result['tests'] = tests
     if test_ok != len(test_tag):
         result['success'] = False
