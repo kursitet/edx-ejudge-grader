@@ -7,8 +7,17 @@ import logging
 import json
 import settings
 import project_urls
+from logging.handlers import RotatingFileHandler
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(levelname)-8s [%(asctime)s] %(filename)s : %(message)s')
+fh = logging.handlers.RotatingFileHandler('/home/ejudge/new_grader/edx-ejudge-grader/log/log.log', maxBytes=(1048576*5), backupCount=7, encoding='utf-8')
+fh.setFormatter(formatter)
+fh.setLevel(logging.DEBUG)
+log.addHandler(fh)
+
 
 def xqueue_login():
     session = requests.session()
@@ -95,7 +104,7 @@ def parse_xobject(xobject, queue_name):
         header = json.loads(xobject['xqueue_header'])
         header.update({'queue_name': queue_name})
         body = json.loads(xobject['xqueue_body'])
-        files = json.loads(xobject['xqueue_files'])
+	files = json.loads(xobject['xqueue_files']) if xobject.get("xqueue_files") else dict()
         
         content = {'xqueue_header': json.dumps(header),
             'xqueue_body': json.dumps(body),
@@ -104,6 +113,10 @@ def parse_xobject(xobject, queue_name):
     except ValueError:
         error_message = "Unexpected reply from server."
         log.error(error_message)
+	log.error(xobject)
+	log.error(header)
+	log.error(body)
+	log.error(files)
         return (False, error_message)
     
     return True, content

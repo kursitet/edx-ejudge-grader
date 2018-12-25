@@ -9,6 +9,7 @@ import xml.etree.ElementTree as etree
 from jinja2 import FileSystemLoader, Environment
 
 logger = logging.getLogger('edx-ejudge-grader')
+ROOT = os.path.dirname(os.path.realpath(__file__))+'/'
 
 
 def task_create(grader_payload):
@@ -41,7 +42,7 @@ def task_create(grader_payload):
 
 def contest_id_get(contest_name):
     try:
-        file = open('./contest_name_to_id.json', 'r')
+        file = open(ROOT+'contest_name_to_id.json', 'r')
     except IOError:
         logger.warning('Not found file: contest_name_to_id.json')
         logger.info("create json contest name to id")
@@ -55,11 +56,11 @@ def contest_id_get(contest_name):
 
 
 def contest_id_create(contest_name):
-    file = open('./contest_name_to_id.json', 'r')
+    file = open(ROOT+'contest_name_to_id.json', 'r')
     contest_table = json.load(file)
     file.close()
     contest_table[contest_name] = str(len(contest_table) + 1)
-    outfile = open('./contest_name_to_id.json', 'w')
+    outfile = open(ROOT+'contest_name_to_id.json', 'w')
     json.dump(contest_table, outfile)
     outfile.close()
     return contest_table[contest_name]
@@ -92,7 +93,7 @@ def contest_xml_create(contest_name, contest_id):
     ip1.text = '1.0.0.127'
     ip2 = etree.SubElement(master_access, 'ip',
                            attrib={'allow': 'yes', 'ssl': 'no'})
-    ip2.text = '172.18.1.24'
+    ip2.text = '172.18.1.134'
     judge_access = etree.SubElement(root, 'judge_access',
                                     attrib={'default': 'allow'})
     ip1 = etree.SubElement(judge_access, 'ip',
@@ -100,7 +101,7 @@ def contest_xml_create(contest_name, contest_id):
     ip1.text = '1.0.0.127'
     ip2 = etree.SubElement(judge_access, 'ip',
                            attrib={'allow': 'yes', 'ssl': 'no'})
-    ip2.text = '172.18.1.24'
+    ip2.text = '172.18.1.134'
     team_access = etree.SubElement(root, 'team_access',
                                    attrib={'default': 'allow'})
     ip1 = etree.SubElement(team_access, 'ip',
@@ -108,7 +109,7 @@ def contest_xml_create(contest_name, contest_id):
     ip1.text = '1.0.0.127'
     ip2 = etree.SubElement(team_access, 'ip',
                            attrib={'allow': 'yes', 'ssl': 'no'})
-    ip2.text = '172.18.1.24'
+    ip2.text = '172.18.1.134'
     serve_control_access = etree.SubElement(root, 'serve_control_access',
                                             attrib={'default': 'allow'})
     ip1 = etree.SubElement(serve_control_access, 'ip',
@@ -116,9 +117,9 @@ def contest_xml_create(contest_name, contest_id):
     ip1.text = '1.0.0.127'
     ip2 = etree.SubElement(serve_control_access, 'ip',
                            attrib={'allow': 'yes', 'ssl': 'no'})
-    ip2.text = '172.18.1.24'
+    ip2.text = '172.18.1.134'
     caps = etree.SubElement(root, 'caps')
-    file_login = open('login', 'r')
+    file_login = open(ROOT+'login', 'r')
     login = file_login.readline().strip()
     cap = etree.SubElement(caps, 'cap', attrib={'login': login})
     cap.text = 'FULL_SET,'
@@ -143,7 +144,7 @@ def contest_name_id_json_create():
             if id == 'auto':
                 contest_id = item.replace('0', ' ').strip()
             name_to_id[name] = str(contest_id)
-    json.dump(name_to_id, open('contest_name_to_id.json', 'w'))
+    json.dump(name_to_id, open(ROOT+'contest_name_to_id.json', 'w'))
 
 
 def contest_path_get(contest_id):
@@ -165,7 +166,7 @@ def dir_structure_create(contest_id):
 
 def serve_cfg_create(contest_path, lang_name, problem_name, problem_type):
     serve = open(contest_path + 'conf/serve.cfg', 'w')
-    loader = FileSystemLoader('./template')
+    loader = FileSystemLoader(ROOT+'template')
     env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('serve_basic')
     basic_param = template.render(random=str(random.randint(10000, 99999)))
@@ -185,7 +186,7 @@ def serve_cfg_create(contest_path, lang_name, problem_name, problem_type):
 
 
 def problem_param_get(problem_name, problem_type):
-    loader = FileSystemLoader('./template')
+    loader = FileSystemLoader(ROOT+'template')
     env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('serve_problem')
     param = template.render(problem_name=problem_name)
@@ -230,7 +231,7 @@ def problem_add_in_serve(contest_path, problem_name, problem_type):
 
 def lang_param_get(lang_short_name):
     lang_id = lang_id_get(lang_short_name)
-    loader = FileSystemLoader('./programm_lang')
+    loader = FileSystemLoader(ROOT+'programm_lang')
     env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template(lang_id)
     param = template.render()
@@ -238,7 +239,7 @@ def lang_param_get(lang_short_name):
 
 
 def lang_id_get(lang_short_name):
-    file = open('./lang_short_to_id.csv', 'r')
+    file = open(ROOT+'lang_short_to_id.csv', 'r')
     lang_list = csv.DictReader(file, delimiter=';', skipinitialspace=True)
     for lang in lang_list:
         if lang['name'] == lang_short_name:
@@ -301,7 +302,7 @@ def test_answer_data_create(problem_name, contest_path, test_data, answer_data):
 
 
 def tester_param_get():
-    loader = FileSystemLoader('./template')
+    loader = FileSystemLoader(ROOT+'template')
     env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('serve_tester')
     param = template.render()
@@ -354,7 +355,7 @@ def grader_payload_update(change_list, grader_payload):
 def session_file_update(contest_id):
     session_file_name = session_file_name_get(contest_id)
     command = '/opt/ejudge/bin/ejudge-contests-cmd ' + contest_id + ' master-login ' + session_file_name
-    file_login = open('login', 'r')
+    file_login = open(ROOT+'login', 'r')
     login = file_login.readline().strip()
     password = file_login.readline()
     command = command + ' ' + login + ' ' + password
@@ -376,7 +377,7 @@ def session_key_get(contest_id):
 
 
 def makefile_create(contest_path, problem_name):
-    loader = FileSystemLoader('./template')
+    loader = FileSystemLoader(ROOT+'template')
     env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('makefile')
     makefile = template.render()

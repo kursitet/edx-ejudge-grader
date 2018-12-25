@@ -3,12 +3,13 @@ import re
 
 import voluptuous as vol
 import jinja2 as j2
+import os
 import error as e
 from ejudge_util import lang_id_get
-
+ROOT = os.path.dirname(os.path.realpath(__file__))+'/'
 
 def answer_msg(answer):
-    loader = j2.FileSystemLoader('./template')
+    loader = j2.FileSystemLoader(ROOT+'template')
     env = j2.Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('answer_popup.html')
     if 'error' in answer:

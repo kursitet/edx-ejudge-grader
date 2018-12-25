@@ -2,6 +2,7 @@
 
 import time
 import logging
+import os
 import subprocess
 import xml.etree.ElementTree as etree
 from os import devnull
@@ -10,7 +11,7 @@ import ejudge_util
 import error as e
 
 logger = logging.getLogger('edx-ejudge-grader')
-
+ROOT = os.path.dirname(os.path.realpath(__file__))+'/'
 
 def grader(response, grader_payload):
     contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
@@ -31,7 +32,7 @@ def grader(response, grader_payload):
 
 
 def run_grade_in_ejudge(response, grader_payload):
-    response_file = open('response.txt', 'w')
+    response_file = open(ROOT+'response.txt', 'w')
     response_file.write(response.encode('utf-8'))
     response_file.close()
     contest_id = ejudge_util.contest_id_get(grader_payload['course_name'])
@@ -123,7 +124,7 @@ def ejudge_submit_run(contest_id, problem_name, lang):
                session_key,
                problem_name,
                lang,
-               'response.txt']
+               ROOT+'response.txt']
     submit_run = subprocess.Popen(command, stdout=subprocess.PIPE)
     run_id, err = submit_run.communicate()
     logger.info('run id = ' + run_id + ' contest_id = ' + contest_id)

@@ -1,7 +1,7 @@
 XQUEUE_INTERFACE = {
-    "url": "http://ip adress lms",
+    "url": "http://185.30.228.135:18030",
     "django_auth": {
-        "username": "username",
+        "username": "lms",
         "password": "password"
     },
     "basic_auth": ('edx', 'edx'),

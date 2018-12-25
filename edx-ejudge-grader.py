@@ -26,7 +26,7 @@ ch.setFormatter(formatter)
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-fh = logging.handlers.RotatingFileHandler('./log/log.log', maxBytes=(1048576*5), backupCount=7, encoding='utf-8')
+fh = logging.handlers.RotatingFileHandler('/home/ejudge/new_grader/edx-ejudge-grader/log/log.log', maxBytes=(1048576*5), backupCount=7, encoding='utf-8')
 fh.setFormatter(formatter)
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)

@@ -15,7 +15,7 @@ class ValidationError(Exception):
         self.field = field
         self.msg = "Unvalid field in grader_payload:" + str(field)
         logger.warning(self.msg)
-
+	logger.error(self)
 
 class EmptyPayload(Exception):
     def __init__(self, field):
@@ -23,6 +23,7 @@ class EmptyPayload(Exception):
         self.field = field
         self.msg = "Unvalid field in grader_payload:Empty " + str(field)
         logger.warning(self.msg)
+	logger.error(self)
 
 
 class SyntaxErrorPayload(Exception):
